@@ -10,7 +10,7 @@ import { useCurrentCart, useCurrentCustomer } from '../../contexts';
 import Link from '@commercetools-uikit/link';
 
 import messages from './messages';
-import { useMoney } from '../../hooks/use-money';
+import { useMoney } from '../../hooks/use-localization';
 import Spacings from '@commercetools-uikit/spacings';
 import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
 

@@ -4,9 +4,11 @@ import { designTokens } from '@commercetools-uikit/design-system';
 import Text from '@commercetools-uikit/text';
 import { useIntl } from 'react-intl';
 import type { LineItem as LineItemType } from '@commercetools/platform-sdk';
-import QuantityControls from './QuantityControls';
-import DiscountBreakdown from './DiscountBreakdown';
+import QuantityControls from './quantity-controls';
+import DiscountBreakdown from './discounts-breakdown';
 import messages from './messages';
+import { useLocalizedString, useMoney } from '../../hooks/use-localization';
+import { useCurrentCart } from '../../contexts/current-cart-context';
 
 const LineItem = styled.div`
   display: flex;
@@ -97,29 +99,32 @@ const BreakdownButton = styled.button`
 
 interface LineItemCardProps {
   item: LineItemType;
-  isUpdating: boolean;
-  onUpdateQuantity: (lineItemId: string, newQuantity: number) => void;
-  formatCurrency: (amount: number, currencyCode: string) => string;
 }
 
 const LineItemCard: React.FC<LineItemCardProps> = ({
   item,
-  isUpdating,
-  onUpdateQuantity,
-  formatCurrency,
 }) => {
   const intl = useIntl();
+  const { convertLocalizedString } = useLocalizedString();
+  const { convertMoneytoString } = useMoney();
+  const { updateLineItemQuantity } = useCurrentCart();
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const hasDiscount = item.price?.discounted
 
-  const retailUnitPrice = item.price.value.centAmount;
-  const totalItemPrice = item.totalPrice.centAmount;
-  const unitDiscountedPrice = totalItemPrice / item.quantity;
-  const hasDiscount = retailUnitPrice !== unitDiscountedPrice;
-
-  const itemName = item.name.en || item.name['en-US'] || item.name['en-AU'] || 'Product';
+  const itemName = convertLocalizedString(item.name);
   const imageUrl = item.variant.images && item.variant.images.length > 0 
     ? item.variant.images[0].url 
     : null;
+
+    const onUpdateQuantity = (lineItemId: string, newQuantity: number) => {
+      setIsUpdating(true);
+      updateLineItemQuantity(lineItemId, newQuantity).finally(() => {
+        setIsUpdating(false);
+      }).catch(() => {
+        setIsUpdating(false);
+      });
+    };
 
   return (
     <LineItem>
@@ -137,16 +142,16 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
         <ItemName>{itemName}</ItemName>
         <PriceText className="retail">
           {intl.formatMessage(messages.retailUnitPrice, {
-            price: formatCurrency(item.price.value.centAmount, item.price.value.currencyCode)
+            price: convertMoneytoString(item.price.value)
           })}
         </PriceText>
         <PriceText className="discounted">
           {hasDiscount 
             ? intl.formatMessage(messages.discountedPrice, {
-                price: formatCurrency(unitDiscountedPrice, item.price.value.currencyCode)
+                price: convertMoneytoString(item.price?.discounted?.value)
               })
             : intl.formatMessage(messages.regularPrice, {
-                price: formatCurrency(unitDiscountedPrice, item.price.value.currencyCode)
+                price: convertMoneytoString(item.price.value)
               })
           }
         </PriceText>
@@ -163,7 +168,7 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
             <PriceText style={{ marginTop: '12px' }}>
               {intl.formatMessage(messages.priceForItems, {
                 count: item.quantity,
-                price: formatCurrency(item.totalPrice.centAmount, item.price.value.currencyCode)
+                price: convertMoneytoString(item.totalPrice)
               })}
             </PriceText>
             <BreakdownButton onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}>
@@ -176,7 +181,6 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
             {isBreakdownOpen && (
               <DiscountBreakdown
                 item={item}
-                formatCurrency={formatCurrency}
               />
             )}
           </>

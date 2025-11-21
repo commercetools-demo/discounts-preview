@@ -47,8 +47,32 @@ export const useCartFetcher = () => {
     [context?.project?.key]
   );
 
+  const updateLineItemQuantity = useCallback(
+    async (cartId: string, lineItemId: string, newQuantity: number): Promise<Cart> => {
+      const cart = await getCart(cartId);
+      const updatedCart = await dispatchCartAction(
+        actions.post({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {}),
+          payload: {
+            version: cart.version,
+            actions: [
+              {
+                action: 'changeLineItemQuantity',
+                lineItemId: lineItemId,
+                quantity: newQuantity,
+              },
+            ],
+          },
+        })
+      );
+      return updatedCart;
+    }, [context?.project?.key]
+  );
+
   return {
     getCart,
     getCarts,
+    updateLineItemQuantity,
   };
 };

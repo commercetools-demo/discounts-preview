@@ -61,15 +61,11 @@ const DiscountPreview: React.FC = () => {
   const [applyBestPromo, setApplyBestPromo] = useState(false);
 
   const {
-    cartData,
-    isLoading,
+    currentCart: cartData,
     error,
     appliedDiscountCodes,
-    updatingLineItems,
     loadCartData,
-    updateLineItemQuantity,
     applyDiscountCode,
-    removeDiscountCode,
   } = useCurrentCart();
 
   const handleLoadCart = useCallback(
@@ -95,13 +91,7 @@ const DiscountPreview: React.FC = () => {
 
       <GridContainer>
         <div>
-          <CartContent
-            cartData={cartData}
-            isLoading={isLoading}
-            onRemoveDiscount={removeDiscountCode}
-            onUpdateQuantity={updateLineItemQuantity}
-            updatingLineItems={updatingLineItems}
-          />
+          <CartContent />
         </div>
         <PromotionsContainer>
           <AvailablePromotions

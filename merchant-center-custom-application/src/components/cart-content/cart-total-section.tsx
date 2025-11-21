@@ -3,21 +3,9 @@ import styled from '@emotion/styled';
 import { designTokens } from '@commercetools-uikit/design-system';
 import { useIntl } from 'react-intl';
 import messages from './messages';
-
-const Card = styled.div`
-  margin-bottom: 32px;
-  padding: 24px;
-  background-color: ${designTokens.colorNeutral95};
-  border: 1px solid ${designTokens.colorNeutral90};
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s;
-
-  &:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-`;
-
+import { useMoney } from '../../hooks/use-localization';
+import { Money } from '@commercetools/platform-sdk';
+import Card from '@commercetools-uikit/card';
 const TotalRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -45,35 +33,32 @@ const TotalRow = styled.div`
 `;
 
 interface CartTotalsSectionProps {
-  subtotalWithoutDiscounts: number;
-  totalAllDiscounts: number;
-  cartTotal: number;
-  currencyCode: string;
-  formatCurrency: (amount: number, currencyCode: string) => string;
+  subtotalWithoutDiscounts: Money| null;
+  totalAllDiscounts: Money| null;
+  cartTotal: Money| null;
 }
 
 const CartTotalsSection: React.FC<CartTotalsSectionProps> = ({
   subtotalWithoutDiscounts,
   totalAllDiscounts,
   cartTotal,
-  currencyCode,
-  formatCurrency,
 }) => {
   const intl = useIntl();
+  const { convertMoneytoString } = useMoney();
 
   return (
     <Card>
       <TotalRow className="subtotal">
         <span>{intl.formatMessage(messages.subtotalWithoutDiscounts)}</span>
-        <span>{formatCurrency(subtotalWithoutDiscounts, currencyCode)}</span>
+        <span>{convertMoneytoString(subtotalWithoutDiscounts)}</span>
       </TotalRow>
       <TotalRow className="discount">
         <span>{intl.formatMessage(messages.totalDiscount)}</span>
-        <span>-{formatCurrency(totalAllDiscounts, currencyCode)}</span>
+        <span>-{convertMoneytoString(totalAllDiscounts)}</span>
       </TotalRow>
       <TotalRow className="total">
         <span>{intl.formatMessage(messages.cartTotal)}</span>
-        <span>{formatCurrency(cartTotal, currencyCode)}</span>
+        <span>{convertMoneytoString(cartTotal)}</span>
       </TotalRow>
     </Card>
   );

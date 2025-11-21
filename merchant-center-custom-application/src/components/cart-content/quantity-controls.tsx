@@ -4,6 +4,12 @@ import { designTokens } from '@commercetools-uikit/design-system';
 import LoadingSpinner from '@commercetools-uikit/loading-spinner';
 import { useIntl } from 'react-intl';
 import messages from './messages';
+import FlatButton from '@commercetools-uikit/flat-button';
+import NumberInput from '@commercetools-uikit/number-input';
+
+const StyledFlatButton = styled(FlatButton)`
+  padding: 0 8px;
+`;
 
 const Container = styled.div`
   display: flex;
@@ -24,48 +30,6 @@ const ButtonGroup = styled.div`
   border: 1px solid ${designTokens.colorNeutral};
   border-radius: 6px;
   overflow: hidden;
-`;
-
-const Button = styled.button<{ disabled?: boolean }>`
-  padding: 8px 12px;
-  font-size: 18px;
-  font-weight: 600;
-  background-color: ${designTokens.colorNeutral95};
-  border: none;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  color: ${props => props.disabled ? designTokens.colorNeutral60 : designTokens.colorSolid};
-  transition: background-color 0.15s;
-
-  &:hover:not(:disabled) {
-    background-color: ${designTokens.colorNeutral90};
-  }
-
-  &:active:not(:disabled) {
-    background-color: ${designTokens.colorNeutral};
-  }
-`;
-
-const Input = styled.input`
-  width: 64px;
-  padding: 8px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-left: 1px solid ${designTokens.colorNeutral};
-  border-right: 1px solid ${designTokens.colorNeutral};
-  background-color: ${designTokens.colorSurface};
-  color: ${designTokens.colorSolid};
-
-  &:focus {
-    outline: none;
-    background-color: ${designTokens.colorNeutral95};
-  }
-
-  &:disabled {
-    background-color: ${designTokens.colorNeutral95};
-    color: ${designTokens.colorNeutral60};
-  }
 `;
 
 const LoadingOverlay = styled.div`
@@ -118,25 +82,27 @@ const QuantityControls: React.FC<QuantityControlsProps> = ({
       <Label>{intl.formatMessage(messages.quantity)}</Label>
       <div style={{ position: 'relative' }}>
         <ButtonGroup>
-          <Button
+          <StyledFlatButton
+            label="−"
             onClick={handleDecrease}
             disabled={quantity <= 1 || isUpdating}
           >
             −
-          </Button>
-          <Input
-            type="number"
-            min="1"
+          </StyledFlatButton>
+          <NumberInput
+            min={1}
             value={quantity}
             onChange={handleInputChange}
-            disabled={isUpdating}
+            isDisabled={isUpdating}
+            horizontalConstraint={2}
           />
-          <Button
+          <StyledFlatButton
+            label="+"
             onClick={handleIncrease}
             disabled={isUpdating}
           >
             +
-          </Button>
+          </StyledFlatButton>
         </ButtonGroup>
         {isUpdating && (
           <LoadingOverlay>
@@ -154,4 +120,3 @@ const QuantityControls: React.FC<QuantityControlsProps> = ({
 QuantityControls.displayName = 'QuantityControls';
 
 export default QuantityControls;
-
