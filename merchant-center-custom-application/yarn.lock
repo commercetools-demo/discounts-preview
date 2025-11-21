@@ -1692,6 +1692,22 @@
     "@emotion/styled" "^11.10.5"
     lodash "4.17.21"
 
+"@commercetools-uikit/buttons@^20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-uikit/buttons/-/buttons-20.3.0.tgz#008074dfe33d00e67507e9508f06afb61896f463"
+  integrity sha512-6y5Bpx2YjuHhrZhJ7kEvmaZmCVfn0xR0UeErCahMO6OssXxjC9/ccsI7S7nJn9PrPcF9d4JjHVH4TTJmZCernA==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    "@babel/runtime-corejs3" "^7.20.13"
+    "@commercetools-uikit/accessible-button" "20.3.0"
+    "@commercetools-uikit/design-system" "20.3.0"
+    "@commercetools-uikit/flat-button" "20.3.0"
+    "@commercetools-uikit/icon-button" "20.3.0"
+    "@commercetools-uikit/link-button" "20.3.0"
+    "@commercetools-uikit/primary-button" "20.3.0"
+    "@commercetools-uikit/secondary-button" "20.3.0"
+    "@commercetools-uikit/secondary-icon-button" "20.3.0"
+
 "@commercetools-uikit/card@20.3.0", "@commercetools-uikit/card@^20.3.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@commercetools-uikit/card/-/card-20.3.0.tgz#a21047620847104ca813be7a0518f8a1826f1c5b"
@@ -1706,7 +1722,7 @@
     "@emotion/styled" "^11.10.5"
     "@types/react-router-dom" "^5.3.3"
 
-"@commercetools-uikit/checkbox-input@20.3.0":
+"@commercetools-uikit/checkbox-input@20.3.0", "@commercetools-uikit/checkbox-input@^20.3.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@commercetools-uikit/checkbox-input/-/checkbox-input-20.3.0.tgz#889e6ea485027682667f96b4345e44d815c0294d"
   integrity sha512-qmgCQpk2/norP02xzGaK10x2ZeDi3PLZf+bI1GhC6Qq6Sgutcws4rAj8UUWK3neJfLwz4c7O/sPQj28m6EFveA==
@@ -1981,6 +1997,22 @@
     "@emotion/react" "^11.10.5"
     "@emotion/styled" "^11.10.5"
 
+"@commercetools-uikit/link-button@20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-uikit/link-button/-/link-button-20.3.0.tgz#4547222cfd3490e8c04cdd4aaec3c4687d8793d2"
+  integrity sha512-oUo3jYc5pymc87mh3Ss2QckOrBlfCM6PDmKfuSBgvJwLg+fG6oEpXkgciUN44+SrUSIiZ3zikvYBnhac1jgW9A==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    "@babel/runtime-corejs3" "^7.20.13"
+    "@commercetools-uikit/accessible-button" "20.3.0"
+    "@commercetools-uikit/design-system" "20.3.0"
+    "@commercetools-uikit/spacings-inline" "20.3.0"
+    "@commercetools-uikit/text" "20.3.0"
+    "@commercetools-uikit/utils" "20.3.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    lodash "4.17.21"
+
 "@commercetools-uikit/link@^20.3.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@commercetools-uikit/link/-/link-20.3.0.tgz#36d9a64f43e9c904d6ea811cdc93ad8a0047133f"
@@ -2161,6 +2193,42 @@
     "@emotion/styled" "^11.10.5"
     react-is "19.2.0"
 
+"@commercetools-uikit/search-select-field@^20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-uikit/search-select-field/-/search-select-field-20.3.0.tgz#35482f53733520220466e7e422db28bb47371805"
+  integrity sha512-wNYwbIXFnFqxUg1Ki/clY2V3D2dF+hJepRvve7+XY2HPeIP8VghRfe1Sb+cn5qVS25BEq+N7KWq+LOcXDUtGVw==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    "@babel/runtime-corejs3" "^7.20.13"
+    "@commercetools-uikit/constraints" "20.3.0"
+    "@commercetools-uikit/design-system" "20.3.0"
+    "@commercetools-uikit/field-errors" "20.3.0"
+    "@commercetools-uikit/field-label" "20.3.0"
+    "@commercetools-uikit/field-warnings" "20.3.0"
+    "@commercetools-uikit/hooks" "20.3.0"
+    "@commercetools-uikit/search-select-input" "20.3.0"
+    "@commercetools-uikit/spacings" "20.3.0"
+    "@commercetools-uikit/utils" "20.3.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    react-intl "^7.1.4"
+
+"@commercetools-uikit/search-select-input@20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-uikit/search-select-input/-/search-select-input-20.3.0.tgz#5986157429040f8277866b82bfc8a793cb103332"
+  integrity sha512-QJeXKsrGHUQnclQ1WdEVHMhe2k5XClvIC+0lwJHnghoB9foBxbBuZ0XcUT+EvtE6r+cEAFJqv6wd7hQ4HpAOJw==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    "@babel/runtime-corejs3" "^7.20.13"
+    "@commercetools-uikit/async-select-input" "20.3.0"
+    "@commercetools-uikit/design-system" "20.3.0"
+    "@commercetools-uikit/select-utils" "20.3.0"
+    "@commercetools-uikit/spacings" "20.3.0"
+    "@commercetools-uikit/text" "20.3.0"
+    "@commercetools-uikit/utils" "20.3.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+
 "@commercetools-uikit/secondary-button@20.3.0", "@commercetools-uikit/secondary-button@^20.3.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@commercetools-uikit/secondary-button/-/secondary-button-20.3.0.tgz#12b40816ddce2053b7d716ce293cb05a67a95205"
@@ -2244,6 +2312,27 @@
     "@commercetools-uikit/icons" "20.3.0"
     "@commercetools-uikit/spacings" "20.3.0"
     "@commercetools-uikit/text" "20.3.0"
+    "@commercetools-uikit/utils" "20.3.0"
+    "@emotion/react" "^11.10.5"
+    "@emotion/styled" "^11.10.5"
+    lodash "4.17.21"
+    react-select "5.10.2"
+
+"@commercetools-uikit/selectable-search-input@^20.3.0":
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@commercetools-uikit/selectable-search-input/-/selectable-search-input-20.3.0.tgz#a4ac6336bf54f48f6e2dc175d56f58bd8c4e28c0"
+  integrity sha512-HSlmGfHLz/RHDZ0xfsxL9mANcUEt+1d59dqfakAhGTywbq8K36sPobVRjTeAA7o82X2mRZ8s1lm925Jts2iSCw==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    "@babel/runtime-corejs3" "^7.20.13"
+    "@commercetools-uikit/constraints" "20.3.0"
+    "@commercetools-uikit/design-system" "20.3.0"
+    "@commercetools-uikit/hooks" "20.3.0"
+    "@commercetools-uikit/icon-button" "20.3.0"
+    "@commercetools-uikit/icons" "20.3.0"
+    "@commercetools-uikit/input-utils" "20.3.0"
+    "@commercetools-uikit/secondary-icon-button" "20.3.0"
+    "@commercetools-uikit/select-utils" "20.3.0"
     "@commercetools-uikit/utils" "20.3.0"
     "@emotion/react" "^11.10.5"
     "@emotion/styled" "^11.10.5"
@@ -2435,7 +2524,7 @@
   resolved "https://registry.yarnpkg.com/@commercetools/http-user-agent/-/http-user-agent-3.0.0.tgz#1bf8573f11f7a9e9688e3460425d9371c4b23c24"
   integrity sha512-kHlVST/Ax8GFpG9vpcUR5wKBGBoY2tZDA87kSC3nxhgk2+szZfv7MMMaAt0EIz2thpyO7oJv9NyPY/3XrrNIXQ==
 
-"@commercetools/platform-sdk@8.18.0":
+"@commercetools/platform-sdk@8.18.0", "@commercetools/platform-sdk@^8.18.0":
   version "8.18.0"
   resolved "https://registry.yarnpkg.com/@commercetools/platform-sdk/-/platform-sdk-8.18.0.tgz#8dd61ad589c130a8cd1827623a1a0e08506c3eee"
   integrity sha512-x7jlaYWRsEhKRd0pXuTkLby91PNpHKJDDnJFZt8P+xPNEkzzoCaWxVx1VM89gr8hagPzTwXIjz4vUNb30sFpIQ==

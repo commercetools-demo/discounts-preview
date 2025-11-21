@@ -17,8 +17,8 @@ const config = {
     },
   },
   oAuthScopes: {
-    view: ['view_discounts', 'view_carts'],
-    manage: ['manage_discounts', 'manage_carts'],
+    view: ['view_cart_discounts', 'view_discount_codes', 'view_orders'],
+    manage: ['manage_cart_discounts', 'manage_discount_codes', 'manage_orders'],
   },
   icon: '${path:@commercetools-frontend/assets/application-icons/rocket.svg}',
   mainMenuLink: {

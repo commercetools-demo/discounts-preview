@@ -1,22 +1,22 @@
 import type { ReactNode } from 'react';
-import { Switch, Route, useRouteMatch } from 'react-router-dom';
-import Spacings from '@commercetools-uikit/spacings';
-import Welcome from './components/welcome';
+import { Switch, Route } from 'react-router-dom';
+import DiscountPreview from './components/discount-preview';
+import { CurrentCartProvider, CurrentUserProvider } from './contexts';
 
 type ApplicationRoutesProps = {
   children?: ReactNode;
 };
 const ApplicationRoutes = (_props: ApplicationRoutesProps) => {
-  const match = useRouteMatch();
-
   return (
-    <Spacings.Inset scale="l">
-      <Switch>
-        <Route>
-          <Welcome />
-        </Route>
-      </Switch>
-    </Spacings.Inset>
+    <CurrentUserProvider>
+      <CurrentCartProvider>
+        <Switch>
+          <Route>
+            <DiscountPreview />
+          </Route>
+        </Switch>
+      </CurrentCartProvider>
+    </CurrentUserProvider>
   );
 };
 ApplicationRoutes.displayName = 'ApplicationRoutes';
