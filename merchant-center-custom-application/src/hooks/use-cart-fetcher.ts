@@ -1,0 +1,54 @@
+import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
+import { MC_API_PROXY_TARGETS } from '@commercetools-frontend/constants';
+import {
+  actions,
+  TSdkAction,
+  useAsyncDispatch,
+} from '@commercetools-frontend/sdk';
+import { Cart, PagedQueryResponse } from '@commercetools/platform-sdk';
+import { buildUrlWithParams } from '../utils/url';
+import { useCallback } from 'react';
+
+export const useCartFetcher = () => {
+  const context = useApplicationContext((context) => context);
+
+  const dispatchCartAction = useAsyncDispatch<TSdkAction, Cart>();
+  const dispatchCartsRead = useAsyncDispatch<TSdkAction, PagedQueryResponse>();
+
+  const getCart = useCallback(
+    async (cartId: string): Promise<Cart> => {
+      const result = await dispatchCartAction(
+        actions.get({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(
+            `/${context?.project?.key}/carts/${cartId}`,
+            {}
+          ),
+        })
+      );
+      return result;
+    },
+    [context?.project?.key]
+  );
+
+  const getCarts = useCallback(
+    async (where?: string): Promise<Cart[]> => {
+      const result = await dispatchCartsRead(
+        actions.get({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts`, {
+            ...(where ? { where: where } : {}),
+            limit: '500',
+          }),
+        })
+      );
+      return result?.results as Cart[];
+    },
+    [context?.project?.key]
+  );
+
+  return {
+    getCart,
+    getCarts,
+  };
+};

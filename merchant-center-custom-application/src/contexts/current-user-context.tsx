@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { Customer } from '@commercetools/platform-sdk';
+import { useCustomerFetcher } from '../hooks/use-customer-fetcher';
 
 interface CurrentUserContextValue {
   customers: Customer[];
   isLoading: boolean;
   error: string | null;
+  currentCustomer: Customer | null;
+  setCurrentCustomer: (customer: Customer | null) => void;
   fetchCustomers: () => Promise<void>;
-  refreshCustomers: () => Promise<void>;
 }
 
 const CurrentUserContext = createContext<CurrentUserContextValue | undefined>(undefined);
@@ -19,26 +21,26 @@ export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({ childr
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
+  const { getCustomers } = useCustomerFetcher();
+
 
   const fetchCustomers = useCallback(async (): Promise<void> => {
-    // TODO: Implement customers fetching
     setIsLoading(true);
     setError(null);
     
     try {
-      // Empty implementation - will be filled later
-      setCustomers([]);
-    } catch (err) {
+      getCustomers().then((customers) => {
+        setCustomers(customers);
+      });
+    } catch (err: any) {
       console.error('Error fetching customers:', err);
-      setError('Failed to load customers');
+      setError('Failed to load customers' + err.message);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const refreshCustomers = useCallback(async (): Promise<void> => {
-    await fetchCustomers();
-  }, [fetchCustomers]);
 
   useEffect(() => {
     fetchCustomers();
@@ -49,7 +51,8 @@ export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({ childr
     isLoading,
     error,
     fetchCustomers,
-    refreshCustomers,
+    currentCustomer,
+    setCurrentCustomer,
   };
 
   return (

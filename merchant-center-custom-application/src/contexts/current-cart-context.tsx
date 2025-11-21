@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import type { Cart } from '@commercetools/platform-sdk';
+import { useCartFetcher } from '../hooks/use-cart-fetcher';
+import { useCurrentCustomer } from './current-user-context';
 
 interface CurrentCartContextValue {
-  cartData: Cart | null;
+  carts: Cart[];
+  currentCart: Cart | null;
   isLoading: boolean;
   error: string | null;
   appliedDiscountCodes: string[];
   updatingLineItems: Set<string>;
+  setCurrentCart: (cart: Cart | null) => void;
   loadCartData: (customerId: string, applyBestPromo: boolean) => Promise<void>;
   updateLineItemQuantity: (lineItemId: string, newQuantity: number) => Promise<void>;
   applyDiscountCode: (discountCode: string) => Promise<void>;
@@ -20,7 +24,10 @@ interface CurrentCartProviderProps {
 }
 
 export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({ children }) => {
-  const [cartData, setCartData] = useState<Cart | null>(null);
+  const { getCarts } = useCartFetcher();
+  const { currentCustomer } = useCurrentCustomer();
+  const [carts, setCarts] = useState<Cart[]>([]);
+  const [currentCart, setCurrentCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedDiscountCodes, setAppliedDiscountCodes] = useState<string[]>([]);
@@ -38,7 +45,7 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({ childr
 
   const updateLineItemQuantity = useCallback(async (lineItemId: string, newQuantity: number): Promise<void> => {
     // TODO: Implement line item quantity update
-    if (!cartData) {
+    if (!currentCart) {
       console.error('No cart data available');
       return;
     }
@@ -58,11 +65,11 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({ childr
         return newSet;
       });
     }
-  }, [cartData]);
+  }, [currentCart]);
 
   const applyDiscountCode = useCallback(async (discountCode: string): Promise<void> => {
     // TODO: Implement discount code application
-    if (!cartData) {
+    if (!currentCart) {
       return;
     }
 
@@ -82,11 +89,11 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({ childr
     } finally {
       setIsLoading(false);
     }
-  }, [cartData, appliedDiscountCodes]);
+  }, [currentCart, appliedDiscountCodes]);
 
   const removeDiscountCode = useCallback(async (discountCodeId: string): Promise<void> => {
     // TODO: Implement discount code removal
-    if (!cartData) {
+    if (!currentCart) {
       return;
     }
 
@@ -101,14 +108,26 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({ childr
     } finally {
       setIsLoading(false);
     }
-  }, [cartData]);
+  }, [currentCart]);
+
+  useEffect(() => {
+    if (currentCustomer) {
+      getCarts(`customerId = "${currentCustomer.id}"`).then((carts) => {
+        setCarts(carts);
+      });
+    } else {
+      setCarts([]);
+    }
+  }, [currentCustomer?.id, getCarts]);
 
   const value: CurrentCartContextValue = {
-    cartData,
+    carts,
+    currentCart,
     isLoading,
     error,
     appliedDiscountCodes,
     updatingLineItems,
+    setCurrentCart,
     loadCartData,
     updateLineItemQuantity,
     applyDiscountCode,
