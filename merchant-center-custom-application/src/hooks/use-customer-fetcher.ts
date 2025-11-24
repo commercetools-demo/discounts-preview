@@ -5,7 +5,11 @@ import {
   TSdkAction,
   useAsyncDispatch,
 } from '@commercetools-frontend/sdk';
-import { Cart, Customer, PagedQueryResponse } from '@commercetools/platform-sdk';
+import {
+  Cart,
+  Customer,
+  PagedQueryResponse,
+} from '@commercetools/platform-sdk';
 import { buildUrlWithParams } from '../utils/url';
 
 export const useCustomerFetcher = () => {
@@ -21,7 +25,10 @@ export const useCustomerFetcher = () => {
     const result = await dispatchCustomerAction(
       actions.get({
         mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-        uri: buildUrlWithParams(`/${context?.project?.key}/customers/${customerId}`, {}),
+        uri: buildUrlWithParams(
+          `/${context?.project?.key}/customers/${customerId}`,
+          {}
+        ),
       })
     );
     return result;
@@ -31,12 +38,9 @@ export const useCustomerFetcher = () => {
     const result = await dispatchCustomersRead(
       actions.get({
         mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-        uri: buildUrlWithParams(
-          `/${context?.project?.key}/customers`,
-          {
-            limit: '500',
-          }
-        ),
+        uri: buildUrlWithParams(`/${context?.project?.key}/customers`, {
+          limit: '500',
+        }),
       })
     );
     return result?.results as Customer[];

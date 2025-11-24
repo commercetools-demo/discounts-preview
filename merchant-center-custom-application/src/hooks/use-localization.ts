@@ -4,37 +4,49 @@ import { useCallback } from 'react';
 
 export const useMoney = () => {
   const context = useApplicationContext((context) => context);
-  const addMoney = useCallback((money1?: Money, money2?: Money) => {
-    if (!money1 || !money2) return null;
-    return {
-      centAmount: money1.centAmount + money2.centAmount,
-      currencyCode: money1.currencyCode,
-    };
-  }, [context?.dataLocale]);
+  const addMoney = useCallback(
+    (money1?: Money, money2?: Money) => {
+      if (!money1 || !money2) return null;
+      return {
+        centAmount: money1.centAmount + money2.centAmount,
+        currencyCode: money1.currencyCode,
+      };
+    },
+    [context?.dataLocale]
+  );
 
-  const subtractMoney = useCallback((money1?: Money, money2?: Money) => {
-    if (!money1 || !money2) return null;
-    return {
-      centAmount: money1.centAmount - money2.centAmount,
-      currencyCode: money1.currencyCode,
-    };
-  }, [context?.dataLocale]);
+  const subtractMoney = useCallback(
+    (money1?: Money, money2?: Money) => {
+      if (!money1 || !money2) return null;
+      return {
+        centAmount: money1.centAmount - money2.centAmount,
+        currencyCode: money1.currencyCode,
+      };
+    },
+    [context?.dataLocale]
+  );
 
-  const multiplyMoney = useCallback((money?: Money | null, multiplier?: number) => {
-    if (!money || !multiplier) return null;
-    return {
-      centAmount: money.centAmount * (multiplier || 0),
-      currencyCode: money.currencyCode,
-    };
-  }, [context?.dataLocale]);
+  const multiplyMoney = useCallback(
+    (money?: Money | null, multiplier?: number) => {
+      if (!money || !multiplier) return null;
+      return {
+        centAmount: money.centAmount * (multiplier || 0),
+        currencyCode: money.currencyCode,
+      };
+    },
+    [context?.dataLocale]
+  );
 
-  const divideMoney = useCallback((money?: Money | null, divisor?: number) => {
-    if (!money || !divisor) return null;
-    return {
-      centAmount: money.centAmount / (divisor || 0),
-      currencyCode: money.currencyCode,
-    };
-  }, [context?.dataLocale]);
+  const divideMoney = useCallback(
+    (money?: Money | null, divisor?: number) => {
+      if (!money || !divisor) return null;
+      return {
+        centAmount: money.centAmount / (divisor || 0),
+        currencyCode: money.currencyCode,
+      };
+    },
+    [context?.dataLocale]
+  );
 
   const convertMoneytoString = useCallback(
     (money?: Money | null) => {

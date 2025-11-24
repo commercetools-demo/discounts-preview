@@ -93,16 +93,16 @@ const TableCell = styled.td`
 
 const TableFooter = styled.tfoot`
   font-weight: 600;
-  
+
   td {
     padding: 12px 8px;
     border-top: 2px solid ${designTokens.colorNeutral};
     background-color: ${designTokens.colorNeutral95};
-    
+
     &:first-child {
       color: ${designTokens.colorSolid};
     }
-    
+
     &:last-child {
       color: ${designTokens.colorPrimary};
     }
@@ -127,10 +127,13 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
       {/* Cart Level Discounts */}
       {promo.includedDiscounts && promo.includedDiscounts.length > 0 && (
         <Section>
-          <SectionTitle>{intl.formatMessage(messages.discountsOnCartTotal)}</SectionTitle>
+          <SectionTitle>
+            {intl.formatMessage(messages.discountsOnCartTotal)}
+          </SectionTitle>
           {promo.includedDiscounts.map((discount, idx) => (
             <DiscountItem key={idx}>
-              {discount.name}: <span>{formatCurrency(discount.amount, currencyCode)}</span>
+              {discount.name}:{' '}
+              <span>{formatCurrency(discount.amount, currencyCode)}</span>
             </DiscountItem>
           ))}
           <Total>
@@ -147,15 +150,22 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
 
       {/* Product Level Discounts */}
       <Section>
-        <SectionTitle>{intl.formatMessage(messages.cartDiscountsOnProductLevel)}</SectionTitle>
-        {promo.includedItemLevelDiscounts && promo.includedItemLevelDiscounts.length > 0 ? (
+        <SectionTitle>
+          {intl.formatMessage(messages.cartDiscountsOnProductLevel)}
+        </SectionTitle>
+        {promo.includedItemLevelDiscounts &&
+        promo.includedItemLevelDiscounts.length > 0 ? (
           <>
             <Table>
               <thead>
                 <tr>
                   <TableHeader>{intl.formatMessage(messages.sku)}</TableHeader>
-                  <TableHeader>{intl.formatMessage(messages.discountName)}</TableHeader>
-                  <TableHeader>{intl.formatMessage(messages.discountValue)}</TableHeader>
+                  <TableHeader>
+                    {intl.formatMessage(messages.discountName)}
+                  </TableHeader>
+                  <TableHeader>
+                    {intl.formatMessage(messages.discountValue)}
+                  </TableHeader>
                 </tr>
               </thead>
               <tbody>
@@ -163,16 +173,23 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
                   <tr key={idx}>
                     <TableCell>{discount.skuName}</TableCell>
                     <TableCell>{discount.name}</TableCell>
-                    <TableCell>{formatCurrency(discount.amount, currencyCode)}</TableCell>
+                    <TableCell>
+                      {formatCurrency(discount.amount, currencyCode)}
+                    </TableCell>
                   </tr>
                 ))}
               </tbody>
               <TableFooter>
                 <tr>
-                  <td colSpan={2}>{intl.formatMessage(messages.productDiscountsTotal)}</td>
+                  <td colSpan={2}>
+                    {intl.formatMessage(messages.productDiscountsTotal)}
+                  </td>
                   <td>
                     {formatCurrency(
-                      promo.includedItemLevelDiscounts.reduce((sum, d) => sum + d.amount, 0),
+                      promo.includedItemLevelDiscounts.reduce(
+                        (sum, d) => sum + d.amount,
+                        0
+                      ),
                       currencyCode
                     )}
                   </td>
@@ -182,7 +199,9 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
           </>
         ) : (
           <div style={{ fontStyle: 'italic' }}>
-            <Text.Detail>{intl.formatMessage(messages.noProductLevelDiscounts)}</Text.Detail>
+            <Text.Detail>
+              {intl.formatMessage(messages.noProductLevelDiscounts)}
+            </Text.Detail>
           </div>
         )}
       </Section>
@@ -193,4 +212,3 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
 PromotionBreakdown.displayName = 'PromotionBreakdown';
 
 export default PromotionBreakdown;
-

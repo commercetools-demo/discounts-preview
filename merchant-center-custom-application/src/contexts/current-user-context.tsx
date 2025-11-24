@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import type { Customer } from '@commercetools/platform-sdk';
 import { useCustomerFetcher } from '../hooks/use-customer-fetcher';
 
@@ -11,24 +18,27 @@ interface CurrentUserContextValue {
   fetchCustomers: () => Promise<void>;
 }
 
-const CurrentUserContext = createContext<CurrentUserContextValue | undefined>(undefined);
+const CurrentUserContext = createContext<CurrentUserContextValue | undefined>(
+  undefined
+);
 
 interface CurrentUserProviderProps {
   children: ReactNode;
 }
 
-export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({ children }) => {
+export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({
+  children,
+}) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
   const { getCustomers } = useCustomerFetcher();
 
-
   const fetchCustomers = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       getCustomers().then((customers) => {
         setCustomers(customers);
@@ -40,7 +50,6 @@ export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({ childr
       setIsLoading(false);
     }
   }, []);
-
 
   useEffect(() => {
     fetchCustomers();
@@ -65,8 +74,9 @@ export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({ childr
 export const useCurrentCustomer = (): CurrentUserContextValue => {
   const context = useContext(CurrentUserContext);
   if (context === undefined) {
-    throw new Error('useCurrentCustomer must be used within a CurrentUserProvider');
+    throw new Error(
+      'useCurrentCustomer must be used within a CurrentUserProvider'
+    );
   }
   return context;
 };
-

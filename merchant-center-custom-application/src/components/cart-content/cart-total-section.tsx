@@ -33,9 +33,9 @@ const TotalRow = styled.div`
 `;
 
 interface CartTotalsSectionProps {
-  subtotalWithoutDiscounts: Money| null;
-  totalAllDiscounts: Money| null;
-  cartTotal: Money| null;
+  subtotalWithoutDiscounts: Money | null;
+  totalAllDiscounts: Money | null;
+  cartTotal: Money | null;
 }
 
 const CartTotalsSection: React.FC<CartTotalsSectionProps> = ({
@@ -67,4 +67,3 @@ const CartTotalsSection: React.FC<CartTotalsSectionProps> = ({
 CartTotalsSection.displayName = 'CartTotalsSection';
 
 export default CartTotalsSection;
-

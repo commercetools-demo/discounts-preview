@@ -61,7 +61,7 @@ export const useCartAnalysis = (cartData: Cart | null) => {
         discountAnalysis: [],
         error: null,
       };
-      
+
       setCartAnalysis(analysis);
     } catch (err) {
       console.error('Error analyzing cart:', err);
@@ -73,7 +73,7 @@ export const useCartAnalysis = (cartData: Cart | null) => {
 
   const analyzeCart = async (cartData: Cart): Promise<CartAnalysis> => {
     // TODO: Implement full cart analysis
-    
+
     // Empty implementation - will be filled later
     return {
       categories: [],
@@ -84,9 +84,12 @@ export const useCartAnalysis = (cartData: Cart | null) => {
     };
   };
 
-  const getAutoDiscounts = async (): Promise<{ promotions: CartDiscount[]; error: string | null }> => {
+  const getAutoDiscounts = async (): Promise<{
+    promotions: CartDiscount[];
+    error: string | null;
+  }> => {
     // TODO: Implement getting auto discounts with caching
-    
+
     // Empty implementation - will be filled later
     return { promotions: [], error: null };
   };
@@ -97,7 +100,7 @@ export const useCartAnalysis = (cartData: Cart | null) => {
     cartData: Cart
   ): DiscountAnalysis[] => {
     // TODO: Implement discount analysis logic
-    
+
     // Empty implementation - will be filled later
     return [];
   };
@@ -111,4 +114,3 @@ export const useCartAnalysis = (cartData: Cart | null) => {
     analyzeDiscounts,
   };
 };
-

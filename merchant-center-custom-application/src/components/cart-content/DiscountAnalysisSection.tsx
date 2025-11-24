@@ -44,7 +44,8 @@ const CollapsibleHeader = styled.button<{ expanded: boolean }>`
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: ${props => props.expanded ? designTokens.colorNeutral95 : designTokens.colorSurface};
+  background-color: ${(props) =>
+    props.expanded ? designTokens.colorNeutral95 : designTokens.colorSurface};
   border: none;
   cursor: pointer;
   text-align: left;
@@ -79,12 +80,16 @@ const Badge = styled.span<{ variant: 'success' | 'warning' | 'neutral' }>`
   font-weight: 600;
   border-radius: 12px;
   color: ${designTokens.colorSurface};
-  background-color: ${props => {
+  background-color: ${(props) => {
     switch (props.variant) {
-      case 'success': return designTokens.colorPrimary;
-      case 'warning': return designTokens.colorWarning;
-      case 'neutral': return designTokens.colorNeutral60;
-      default: return designTokens.colorNeutral;
+      case 'success':
+        return designTokens.colorPrimary;
+      case 'warning':
+        return designTokens.colorWarning;
+      case 'neutral':
+        return designTokens.colorNeutral60;
+      default:
+        return designTokens.colorNeutral;
     }
   }};
 `;
@@ -103,19 +108,29 @@ const DiscountAnalysisSection: React.FC<DiscountAnalysisSectionProps> = ({
     notApplicable: false,
   });
 
-  const toggleSection = (section: 'qualified' | 'pending' | 'notApplicable') => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  const toggleSection = (
+    section: 'qualified' | 'pending' | 'notApplicable'
+  ) => {
+    setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const qualifiedCount = discountAnalysis.filter(a => a.qualificationStatus === 'QUALIFIED').length;
-  const pendingCount = discountAnalysis.filter(a => a.qualificationStatus === 'PENDING').length;
-  const otherCount = discountAnalysis.filter(a => 
-    a.qualificationStatus === 'NOT_APPLICABLE' || a.qualificationStatus === 'UNKNOWN'
+  const qualifiedCount = discountAnalysis.filter(
+    (a) => a.qualificationStatus === 'QUALIFIED'
+  ).length;
+  const pendingCount = discountAnalysis.filter(
+    (a) => a.qualificationStatus === 'PENDING'
+  ).length;
+  const otherCount = discountAnalysis.filter(
+    (a) =>
+      a.qualificationStatus === 'NOT_APPLICABLE' ||
+      a.qualificationStatus === 'UNKNOWN'
   ).length;
 
   return (
     <Card>
-      <SectionHeader>{intl.formatMessage(messages.discountAnalysis)}</SectionHeader>
+      <SectionHeader>
+        {intl.formatMessage(messages.discountAnalysis)}
+      </SectionHeader>
       <div style={{ marginTop: '16px' }}>
         {/* Qualified Discounts */}
         <CollapsibleSection>
@@ -124,23 +139,31 @@ const DiscountAnalysisSection: React.FC<DiscountAnalysisSectionProps> = ({
             onClick={() => toggleSection('qualified')}
           >
             <Text.Body fontWeight="bold">
-              {intl.formatMessage(messages.qualifiedDiscounts, { count: qualifiedCount })}
+              {intl.formatMessage(messages.qualifiedDiscounts, {
+                count: qualifiedCount,
+              })}
             </Text.Body>
             {expandedSections.qualified ? <AngleUpIcon /> : <AngleDownIcon />}
           </CollapsibleHeader>
           {expandedSections.qualified && (
             <CollapsibleContent>
               {discountAnalysis
-                .filter(a => a.qualificationStatus === 'QUALIFIED')
+                .filter((a) => a.qualificationStatus === 'QUALIFIED')
                 .map((analysis, idx) => (
                   <DiscountItem key={idx}>
                     <div>
-                      <Text.Body fontWeight="bold">{analysis.discount.name}</Text.Body>
+                      <Text.Body fontWeight="bold">
+                        {analysis.discount.name}
+                      </Text.Body>
                       {analysis.discount.description && (
-                        <Text.Detail>{analysis.discount.description}</Text.Detail>
+                        <Text.Detail>
+                          {analysis.discount.description}
+                        </Text.Detail>
                       )}
                     </div>
-                    <Badge variant="success">{intl.formatMessage(messages.applied)}</Badge>
+                    <Badge variant="success">
+                      {intl.formatMessage(messages.applied)}
+                    </Badge>
                   </DiscountItem>
                 ))}
             </CollapsibleContent>
@@ -154,21 +177,27 @@ const DiscountAnalysisSection: React.FC<DiscountAnalysisSectionProps> = ({
             onClick={() => toggleSection('pending')}
           >
             <Text.Body fontWeight="bold">
-              {intl.formatMessage(messages.potentialDiscountsSection, { count: pendingCount })}
+              {intl.formatMessage(messages.potentialDiscountsSection, {
+                count: pendingCount,
+              })}
             </Text.Body>
             {expandedSections.pending ? <AngleUpIcon /> : <AngleDownIcon />}
           </CollapsibleHeader>
           {expandedSections.pending && (
             <CollapsibleContent>
               {discountAnalysis
-                .filter(a => a.qualificationStatus === 'PENDING')
+                .filter((a) => a.qualificationStatus === 'PENDING')
                 .map((analysis, idx) => (
                   <DiscountItem key={idx}>
                     <div>
-                      <Text.Body fontWeight="bold">{analysis.discount.name}</Text.Body>
+                      <Text.Body fontWeight="bold">
+                        {analysis.discount.name}
+                      </Text.Body>
                       <Text.Detail>{analysis.qualificationMessage}</Text.Detail>
                     </div>
-                    <Badge variant="warning">{intl.formatMessage(messages.pending)}</Badge>
+                    <Badge variant="warning">
+                      {intl.formatMessage(messages.pending)}
+                    </Badge>
                   </DiscountItem>
                 ))}
             </CollapsibleContent>
@@ -182,27 +211,39 @@ const DiscountAnalysisSection: React.FC<DiscountAnalysisSectionProps> = ({
             onClick={() => toggleSection('notApplicable')}
           >
             <Text.Body fontWeight="bold">
-              {intl.formatMessage(messages.otherDiscounts, { count: otherCount })}
+              {intl.formatMessage(messages.otherDiscounts, {
+                count: otherCount,
+              })}
             </Text.Body>
-            {expandedSections.notApplicable ? <AngleUpIcon /> : <AngleDownIcon />}
+            {expandedSections.notApplicable ? (
+              <AngleUpIcon />
+            ) : (
+              <AngleDownIcon />
+            )}
           </CollapsibleHeader>
           {expandedSections.notApplicable && (
             <CollapsibleContent>
               {discountAnalysis
-                .filter(a => a.qualificationStatus === 'NOT_APPLICABLE' || a.qualificationStatus === 'UNKNOWN')
+                .filter(
+                  (a) =>
+                    a.qualificationStatus === 'NOT_APPLICABLE' ||
+                    a.qualificationStatus === 'UNKNOWN'
+                )
                 .map((analysis, idx) => (
                   <DiscountItem key={idx}>
                     <div>
-                      <Text.Body fontWeight="bold">{analysis.discount.name}</Text.Body>
+                      <Text.Body fontWeight="bold">
+                        {analysis.discount.name}
+                      </Text.Body>
                       <Text.Detail>
-                        {analysis.qualificationMessage || 'Not applicable to current cart'}
+                        {analysis.qualificationMessage ||
+                          'Not applicable to current cart'}
                       </Text.Detail>
                     </div>
                     <Badge variant="neutral">
-                      {analysis.qualificationStatus === 'UNKNOWN' 
+                      {analysis.qualificationStatus === 'UNKNOWN'
                         ? intl.formatMessage(messages.special)
-                        : intl.formatMessage(messages.notApplicable)
-                      }
+                        : intl.formatMessage(messages.notApplicable)}
                     </Badge>
                   </DiscountItem>
                 ))}
@@ -217,4 +258,3 @@ const DiscountAnalysisSection: React.FC<DiscountAnalysisSectionProps> = ({
 DiscountAnalysisSection.displayName = 'DiscountAnalysisSection';
 
 export default DiscountAnalysisSection;
-

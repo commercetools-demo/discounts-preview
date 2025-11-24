@@ -67,18 +67,22 @@ const PotentialDiscountsSection: React.FC<PotentialDiscountsSectionProps> = ({
 }) => {
   const intl = useIntl();
   const pendingDiscounts = discountAnalysis.filter(
-    analysis => analysis.qualificationStatus === 'PENDING'
+    (analysis) => analysis.qualificationStatus === 'PENDING'
   );
 
   return (
     <Card>
-      <SectionHeader>{intl.formatMessage(messages.potentialDiscounts)}</SectionHeader>
+      <SectionHeader>
+        {intl.formatMessage(messages.potentialDiscounts)}
+      </SectionHeader>
       <div style={{ marginTop: '16px' }}>
         {pendingDiscounts.length > 0 ? (
           pendingDiscounts.map((analysis, index) => (
             <DiscountItem key={index}>
               <div>
-                <Text.Body fontWeight="bold">{analysis.discount.name}</Text.Body>
+                <Text.Body fontWeight="bold">
+                  {analysis.discount.name}
+                </Text.Body>
                 <Text.Detail>{analysis.qualificationMessage}</Text.Detail>
               </div>
               <Badge>{intl.formatMessage(messages.pending)}</Badge>
@@ -86,7 +90,9 @@ const PotentialDiscountsSection: React.FC<PotentialDiscountsSectionProps> = ({
           ))
         ) : (
           <EmptyState>
-            <Text.Detail>{intl.formatMessage(messages.noPotentialDiscounts)}</Text.Detail>
+            <Text.Detail>
+              {intl.formatMessage(messages.noPotentialDiscounts)}
+            </Text.Detail>
           </EmptyState>
         )}
       </div>
@@ -97,4 +103,3 @@ const PotentialDiscountsSection: React.FC<PotentialDiscountsSectionProps> = ({
 PotentialDiscountsSection.displayName = 'PotentialDiscountsSection';
 
 export default PotentialDiscountsSection;
-

@@ -23,7 +23,10 @@ export interface ItemLevelDiscountBreakdown {
   currency: string;
 }
 
-export const usePromotions = (cartData: Cart | null, applyBestPromoAutomatically: boolean) => {
+export const usePromotions = (
+  cartData: Cart | null,
+  applyBestPromoAutomatically: boolean
+) => {
   const [promotions, setPromotions] = useState<PromotionWithValue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currencyCode, setCurrencyCode] = useState('USD');
@@ -41,7 +44,7 @@ export const usePromotions = (cartData: Cart | null, applyBestPromoAutomatically
     // TODO: Implement promotions loading
     console.log('Loading Discount Codes...');
     setIsLoading(true);
-    
+
     try {
       // Empty implementation - will be filled later
       setPromotions([]);
@@ -58,15 +61,18 @@ export const usePromotions = (cartData: Cart | null, applyBestPromoAutomatically
   ): Promise<PromotionWithValue[]> => {
     // TODO: Implement promotion values calculation
     console.log('Calculating promotion values...');
-    
+
     // Empty implementation - will be filled later
     return [];
   };
 
-  const createShadowCart = async (cartData: Cart, newDiscountCode: string): Promise<Cart> => {
+  const createShadowCart = async (
+    cartData: Cart,
+    newDiscountCode: string
+  ): Promise<Cart> => {
     // TODO: Implement shadow cart creation
     console.log('Creating shadow cart with discount code:', newDiscountCode);
-    
+
     // Empty implementation - will be filled later
     throw new Error('Not implemented');
   };
@@ -74,7 +80,7 @@ export const usePromotions = (cartData: Cart | null, applyBestPromoAutomatically
   const deleteShadowCart = async (shadowCart: Cart): Promise<void> => {
     // TODO: Implement shadow cart deletion
     console.log('Deleting shadow cart:', shadowCart.id);
-    
+
     // Empty implementation - will be filled later
   };
 
@@ -88,4 +94,3 @@ export const usePromotions = (cartData: Cart | null, applyBestPromoAutomatically
     deleteShadowCart,
   };
 };
-

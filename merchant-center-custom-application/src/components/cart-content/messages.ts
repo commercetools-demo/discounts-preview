@@ -170,4 +170,3 @@ export default defineMessages({
     defaultMessage: 'Total All Discounts:',
   },
 });
-

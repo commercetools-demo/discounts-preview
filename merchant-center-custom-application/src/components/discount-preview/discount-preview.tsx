@@ -29,7 +29,6 @@ const Title = styled.h1`
   margin-bottom: 16px;
 `;
 
-
 const ErrorMessage = styled.p`
   color: ${designTokens.colorError};
   text-align: center;
@@ -55,7 +54,6 @@ const PromotionsContainer = styled.div`
   gap: 32px;
 `;
 
-
 const DiscountPreview: React.FC = () => {
   const intl = useIntl();
   const [applyBestPromo, setApplyBestPromo] = useState(false);
@@ -79,30 +77,32 @@ const DiscountPreview: React.FC = () => {
   return (
     <Container>
       <Spacings.Stack scale="m">
-      <Header>
-        <Title>{intl.formatMessage(messages.pageTitle)}</Title>
-        {/* Logo would be added here if available */}
-      </Header>
-      <Text.Headline as="h1">{intl.formatMessage(messages.pageTitle)}</Text.Headline>
+        <Header>
+          <Title>{intl.formatMessage(messages.pageTitle)}</Title>
+          {/* Logo would be added here if available */}
+        </Header>
+        <Text.Headline as="h1">
+          {intl.formatMessage(messages.pageTitle)}
+        </Text.Headline>
 
-      <CartIdForm />
+        <CartIdForm />
 
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      <GridContainer>
-        <div>
-          <CartContent />
-        </div>
-        <PromotionsContainer>
-          <AvailablePromotions
-            cartData={cartData}
-            onApplyDiscount={applyDiscountCode}
-            applyBestPromoAutomatically={applyBestPromo}
-            appliedDiscountCodes={appliedDiscountCodes}
-          />
-          <AutoTriggeredPromotions />
-        </PromotionsContainer>
-      </GridContainer>
+        <GridContainer>
+          <div>
+            <CartContent />
+          </div>
+          <PromotionsContainer>
+            <AvailablePromotions
+              cartData={cartData}
+              onApplyDiscount={applyDiscountCode}
+              applyBestPromoAutomatically={applyBestPromo}
+              appliedDiscountCodes={appliedDiscountCodes}
+            />
+            <AutoTriggeredPromotions />
+          </PromotionsContainer>
+        </GridContainer>
       </Spacings.Stack>
     </Container>
   );

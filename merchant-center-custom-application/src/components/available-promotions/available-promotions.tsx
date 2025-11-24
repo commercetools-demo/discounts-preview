@@ -80,10 +80,16 @@ const AvailablePromotions: React.FC<AvailablePromotionsProps> = ({
 }) => {
   const intl = useIntl();
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-  const { promotions, isLoading, currencyCode } = usePromotions(cartData, applyBestPromoAutomatically);
+  const { promotions, isLoading, currencyCode } = usePromotions(
+    cartData,
+    applyBestPromoAutomatically
+  );
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+    }).format(amount);
   };
 
   return (
@@ -98,9 +104,13 @@ const AvailablePromotions: React.FC<AvailablePromotionsProps> = ({
       {isInfoExpanded && (
         <InfoContent>
           <div>
-            <Text.Detail>{intl.formatMessage(messages.infoDescription1)}</Text.Detail>
+            <Text.Detail>
+              {intl.formatMessage(messages.infoDescription1)}
+            </Text.Detail>
             <div style={{ marginTop: '8px' }}>
-              <Text.Detail>{intl.formatMessage(messages.infoDescription2)}</Text.Detail>
+              <Text.Detail>
+                {intl.formatMessage(messages.infoDescription2)}
+              </Text.Detail>
             </div>
           </div>
         </InfoContent>
@@ -109,11 +119,15 @@ const AvailablePromotions: React.FC<AvailablePromotionsProps> = ({
       <ContentArea>
         {isLoading ? (
           <LoadingContainer>
-            <LoadingSpinner scale="l">{intl.formatMessage(messages.loadingDiscounts)}</LoadingSpinner>
+            <LoadingSpinner scale="l">
+              {intl.formatMessage(messages.loadingDiscounts)}
+            </LoadingSpinner>
           </LoadingContainer>
         ) : promotions.length === 0 ? (
           <EmptyState>
-            <Text.Body>{intl.formatMessage(messages.noDiscountsAvailable)}</Text.Body>
+            <Text.Body>
+              {intl.formatMessage(messages.noDiscountsAvailable)}
+            </Text.Body>
           </EmptyState>
         ) : (
           promotions.map((promo, index) => (

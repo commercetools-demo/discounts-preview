@@ -77,20 +77,28 @@ const Badge = styled.span<{ variant: 'auto' | 'stackable' | 'manual' }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: ${props => {
+  color: ${(props) => {
     switch (props.variant) {
-      case 'auto': return designTokens.colorPrimary;
-      case 'stackable': return designTokens.colorPrimary;
-      case 'manual': return designTokens.colorError;
-      default: return designTokens.colorNeutral60;
+      case 'auto':
+        return designTokens.colorPrimary;
+      case 'stackable':
+        return designTokens.colorPrimary;
+      case 'manual':
+        return designTokens.colorError;
+      default:
+        return designTokens.colorNeutral60;
     }
   }};
-  background-color: ${props => {
+  background-color: ${(props) => {
     switch (props.variant) {
-      case 'auto': return designTokens.colorPrimary95;
-      case 'stackable': return designTokens.colorPrimary95;
-      case 'manual': return designTokens.colorError95;
-      default: return designTokens.colorNeutral95;
+      case 'auto':
+        return designTokens.colorPrimary95;
+      case 'stackable':
+        return designTokens.colorPrimary95;
+      case 'manual':
+        return designTokens.colorError95;
+      default:
+        return designTokens.colorNeutral95;
     }
   }};
 `;
@@ -139,9 +147,16 @@ const PromotionCard: React.FC<PromotionCardProps> = ({
   formatCurrency,
 }) => {
   const intl = useIntl();
-  const promoName = (promo.name && (promo.name.en || promo.name['en-US'] || promo.name['en-AU'])) || 
-                    intl.formatMessage(messages.unnamedPromotion);
-  const promoDescription = (promo.description && (promo.description.en || promo.description['en-US'] || promo.description['en-AU'])) || '';
+  const promoName =
+    (promo.name &&
+      (promo.name.en || promo.name['en-US'] || promo.name['en-AU'])) ||
+    intl.formatMessage(messages.unnamedPromotion);
+  const promoDescription =
+    (promo.description &&
+      (promo.description.en ||
+        promo.description['en-US'] ||
+        promo.description['en-AU'])) ||
+    '';
 
   return (
     <Card>
@@ -150,7 +165,9 @@ const PromotionCard: React.FC<PromotionCardProps> = ({
           <Title>
             {promoName}
             {index === 0 && (
-              <BestDealBadge>{intl.formatMessage(messages.bestDeal)}</BestDealBadge>
+              <BestDealBadge>
+                {intl.formatMessage(messages.bestDeal)}
+              </BestDealBadge>
             )}
           </Title>
           <Description>{promoDescription}</Description>
@@ -158,15 +175,29 @@ const PromotionCard: React.FC<PromotionCardProps> = ({
 
         <BadgeContainer>
           {promo.custom?.fields?.isAutomatic !== undefined && (
-            <Badge variant={promo.custom.fields.isAutomatic ? 'auto' : 'manual'}>
-              {promo.custom.fields.isAutomatic ? '✓' : '✗'} {intl.formatMessage(messages.auto)}
+            <Badge
+              variant={promo.custom.fields.isAutomatic ? 'auto' : 'manual'}
+            >
+              {promo.custom.fields.isAutomatic ? '✓' : '✗'}{' '}
+              {intl.formatMessage(messages.auto)}
             </Badge>
           )}
-          {promo.cartDiscounts && promo.cartDiscounts[0] && promo.cartDiscounts[0].obj && (
-            <Badge variant={promo.cartDiscounts[0].obj.stackingMode === 'Stacking' ? 'stackable' : 'manual'}>
-              {promo.cartDiscounts[0].obj.stackingMode === 'Stacking' ? '+' : '−'} {intl.formatMessage(messages.stackable)}
-            </Badge>
-          )}
+          {promo.cartDiscounts &&
+            promo.cartDiscounts[0] &&
+            promo.cartDiscounts[0].obj && (
+              <Badge
+                variant={
+                  promo.cartDiscounts[0].obj.stackingMode === 'Stacking'
+                    ? 'stackable'
+                    : 'manual'
+                }
+              >
+                {promo.cartDiscounts[0].obj.stackingMode === 'Stacking'
+                  ? '+'
+                  : '−'}{' '}
+                {intl.formatMessage(messages.stackable)}
+              </Badge>
+            )}
         </BadgeContainer>
       </Header>
 
@@ -174,12 +205,12 @@ const PromotionCard: React.FC<PromotionCardProps> = ({
         <PriceInfo>
           <PriceRow>
             {intl.formatMessage(messages.cartTotal, {
-              amount: formatCurrency(promo.totalCart, currencyCode)
+              amount: formatCurrency(promo.totalCart, currencyCode),
             })}
           </PriceRow>
           <PriceRow className="discount">
             {intl.formatMessage(messages.discountTotal, {
-              amount: formatCurrency(promo.discountValue, currencyCode)
+              amount: formatCurrency(promo.discountValue, currencyCode),
             })}
           </PriceRow>
         </PriceInfo>
@@ -211,4 +242,3 @@ const PromotionCard: React.FC<PromotionCardProps> = ({
 PromotionCard.displayName = 'PromotionCard';
 
 export default PromotionCard;
-

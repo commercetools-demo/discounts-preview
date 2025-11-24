@@ -7,7 +7,8 @@ export default defineMessages({
   },
   subHeader: {
     id: 'AutoTriggeredPromotions.subHeader',
-    defaultMessage: 'Discounts that are applied automatically depending on the \'active\' and \'stackable\' state.',
+    defaultMessage:
+      "Discounts that are applied automatically depending on the 'active' and 'stackable' state.",
   },
   loadingDiscounts: {
     id: 'AutoTriggeredPromotions.loadingDiscounts',
@@ -33,9 +34,12 @@ export default defineMessages({
     id: 'AutoTriggeredPromotions.stackable',
     defaultMessage: 'Stackable',
   },
+  notStackable: {
+    id: 'AutoTriggeredPromotions.notStackable',
+    defaultMessage: 'Not Stackable',
+  },
   error: {
     id: 'AutoTriggeredPromotions.error',
     defaultMessage: 'Error: {message}',
   },
 });
-

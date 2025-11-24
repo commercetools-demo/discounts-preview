@@ -18,4 +18,3 @@ export default defineMessages({
     defaultMessage: 'Discount Groups Management - Not Implemented',
   },
 });
-

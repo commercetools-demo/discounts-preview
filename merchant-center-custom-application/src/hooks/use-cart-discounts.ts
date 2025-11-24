@@ -1,47 +1,48 @@
-import { useState, useEffect } from 'react';
-import type { CartDiscount } from '@commercetools/platform-sdk';
-
+import { useState, useEffect, useCallback } from 'react';
+import type {
+  CartDiscount,
+  PagedQueryResponse,
+} from '@commercetools/platform-sdk';
+import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
+import { MC_API_PROXY_TARGETS } from '@commercetools-frontend/constants';
+import {
+  actions,
+  TSdkAction,
+  useAsyncDispatch,
+} from '@commercetools-frontend/sdk';
+import { buildUrlWithParams } from '../utils/url';
 export const useCartDiscounts = () => {
-  const [discounts, setDiscounts] = useState<CartDiscount[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const context = useApplicationContext((context) => context);
+  const dispatchCartAction = useAsyncDispatch<TSdkAction, PagedQueryResponse>();
 
-  useEffect(() => {
-    loadAutoDiscounts();
+  const loadAutoDiscounts = useCallback(async (): Promise<CartDiscount[]> => {
+    try {
+      const result = await dispatchCartAction(
+        actions.get({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/cart-discounts`, {
+            where: 'requiresDiscountCode=false',
+          }),
+        })
+      );
+      return result.results as CartDiscount[];
+    } catch (err) {
+      return [];
+    }
   }, []);
 
-  const loadAutoDiscounts = async (): Promise<{ promotions: CartDiscount[]; error: string | null }> => {
-    // TODO: Implement auto-triggered discounts loading
-    setIsLoading(true);
-    
-    try {
-      // Empty implementation - will be filled later
-      const result = { promotions: [], error: null };
-      setDiscounts(result.promotions);
-      setError(result.error);
-      return result;
-    } catch (err) {
-      const errorMessage = 'Failed to load auto-triggered discounts';
-      setError(errorMessage);
-      return { promotions: [], error: errorMessage };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getAutoTriggeredDiscounts = async (): Promise<{ promotions: CartDiscount[]; error: string | null }> => {
+  const getAutoTriggeredDiscounts = async (): Promise<{
+    promotions: CartDiscount[];
+    error: string | null;
+  }> => {
     // TODO: Implement getting auto-triggered discounts
-    
+
     // Empty implementation - will be filled later
     return { promotions: [], error: null };
   };
 
   return {
-    discounts,
-    isLoading,
-    error,
     loadAutoDiscounts,
     getAutoTriggeredDiscounts,
   };
 };
-

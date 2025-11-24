@@ -5,7 +5,11 @@ import {
   TSdkAction,
   useAsyncDispatch,
 } from '@commercetools-frontend/sdk';
-import { Cart, ClientResponse, PagedQueryResponse } from '@commercetools/platform-sdk';
+import {
+  Cart,
+  ClientResponse,
+  PagedQueryResponse,
+} from '@commercetools/platform-sdk';
 import { buildUrlWithParams } from '../utils/url';
 import { useCallback } from 'react';
 
@@ -20,12 +24,9 @@ export const useCartFetcher = () => {
       const result = await dispatchCartAction(
         actions.get({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-          uri: buildUrlWithParams(
-            `/${context?.project?.key}/carts/${cartId}`,
-            {
-              ...(expand ? { expand } : {}),
-            }
-          ),
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {
+            ...(expand ? { expand } : {}),
+          }),
         })
       );
       return result;
@@ -51,12 +52,19 @@ export const useCartFetcher = () => {
   );
 
   const updateLineItemQuantity = useCallback(
-    async (cartId: string, lineItemId: string, newQuantity: number): Promise<Cart> => {
+    async (
+      cartId: string,
+      lineItemId: string,
+      newQuantity: number
+    ): Promise<Cart> => {
       const cart = await getCart(cartId);
       const updatedCart = await dispatchCartAction(
         actions.post({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {}),
+          uri: buildUrlWithParams(
+            `/${context?.project?.key}/carts/${cartId}`,
+            {}
+          ),
           payload: {
             version: cart.version,
             actions: [
@@ -70,7 +78,8 @@ export const useCartFetcher = () => {
         })
       );
       return updatedCart;
-    }, [context?.project?.key]
+    },
+    [context?.project?.key]
   );
 
   return {

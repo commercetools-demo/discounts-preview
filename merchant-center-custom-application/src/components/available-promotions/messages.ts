@@ -11,11 +11,13 @@ export default defineMessages({
   },
   infoDescription1: {
     id: 'AvailablePromotions.infoDescription1',
-    defaultMessage: 'Discounts that are applied automatically based on the configuration \'Apply automatically\' (custom field on Discount Code) or manually using \'apply discount\' button. Depending on the implementation, the "best deal" discounts might be automatically applied on the customer cart.',
+    defaultMessage:
+      "Discounts that are applied automatically based on the configuration 'Apply automatically' (custom field on Discount Code) or manually using 'apply discount' button. Depending on the implementation, the \"best deal\" discounts might be automatically applied on the customer cart.",
   },
   infoDescription2: {
     id: 'AvailablePromotions.infoDescription2',
-    defaultMessage: 'Your new cart total and the potential discounts including all active auto-triggered promotions if you apply this promotion. Breakdown shows how discount is applied, on total cart price or on line item level.',
+    defaultMessage:
+      'Your new cart total and the potential discounts including all active auto-triggered promotions if you apply this promotion. Breakdown shows how discount is applied, on total cart price or on line item level.',
   },
   loadingDiscounts: {
     id: 'AvailablePromotions.loadingDiscounts',
@@ -90,4 +92,3 @@ export default defineMessages({
     defaultMessage: 'No product level discounts',
   },
 });
-

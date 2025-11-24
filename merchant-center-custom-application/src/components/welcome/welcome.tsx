@@ -5,7 +5,6 @@ import { useIntl } from 'react-intl';
 import { useRouteMatch } from 'react-router-dom';
 import messages from './messages';
 
-
 const Welcome = () => {
   const match = useRouteMatch();
   const intl = useIntl();
@@ -14,7 +13,6 @@ const Welcome = () => {
     <Constraints.Horizontal max={16}>
       <Spacings.Stack scale="xl">
         <Text.Headline as="h1" intlMessage={messages.title} />
-        
       </Spacings.Stack>
     </Constraints.Horizontal>
   );
