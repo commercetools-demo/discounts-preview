@@ -9,7 +9,7 @@ import messages from './messages';
 import { useAutoDiscounts } from '../../contexts';
 import CollapsiblePanel from '@commercetools-uikit/collapsible-panel';
 import { css } from '@emotion/react';
-
+import { PageNavigator } from '@commercetools-uikit/pagination';
 const collapsiblePanelStyles = css`
   padding-left: 20px;
   padding-right: 20px;
@@ -32,9 +32,24 @@ const ErrorState = styled.div`
   color: ${designTokens.colorError};
 `;
 
+const StyledDiv = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  padding-bottom: 20px;
+`;
+
+const StyledWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
 const AutoTriggeredPromotions: React.FC = () => {
   const intl = useIntl();
-  const { autoDiscounts, isLoading, error } = useAutoDiscounts();
+  const { autoDiscounts, isLoading, error, page, totalPages, onPageChange } = useAutoDiscounts();
 
   if (error) {
     return (
@@ -72,10 +87,20 @@ const AutoTriggeredPromotions: React.FC = () => {
           </Text.Body>
         </EmptyState>
       ) : (
-        autoDiscounts.map((discount) => (
+        <StyledWrapper>
+          {autoDiscounts.map((discount) => (
           <DiscountCard key={discount.id} discount={discount} />
-        ))
+        ))}
+        </StyledWrapper>
       )}
+      <StyledDiv>
+      <PageNavigator
+        page={page}
+        onPageChange={onPageChange}
+        totalPages={totalPages}
+      
+      />
+      </StyledDiv>
     </CollapsiblePanel>
   );
 };

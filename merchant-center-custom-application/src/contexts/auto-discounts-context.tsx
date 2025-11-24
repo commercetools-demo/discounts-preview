@@ -5,6 +5,7 @@ import React, {
   useCallback,
   ReactNode,
   useEffect,
+  useMemo,
 } from 'react';
 import type { CartDiscount } from '@commercetools/platform-sdk';
 import { useCartDiscounts } from '../hooks/use-cart-discounts';
@@ -13,6 +14,10 @@ interface AutoDiscountsContextValue {
   autoDiscounts: CartDiscount[];
   isLoading: boolean;
   error: string | null;
+  page: number;
+  totalPages: number;
+  setLimit: (limit: number) => void;
+  onPageChange: (page: number) => void;
   refreshAutoDiscounts: () => Promise<void>;
 }
 
@@ -31,14 +36,29 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
   const [autoDiscounts, setAutoDiscounts] = useState<CartDiscount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [limit, setLimit] = useState<number>(10);
+  const [page, setPage] = useState<number>(1);
+  const [total, setTotal] = useState<number>(0);
+
+  const onPageChange = (page: number) => {
+    if (page >= 1) {
+      setPage(page);
+      refreshAutoDiscounts();
+    }
+  };
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(total / limit);
+  }, [total, limit]);
 
   const refreshAutoDiscounts = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const discounts = await loadAutoDiscounts();
-      setAutoDiscounts(discounts);
+      const discounts = await loadAutoDiscounts(limit, (page - 1) * limit);
+      setTotal(discounts.total ?? 0);
+      setAutoDiscounts(discounts.results as CartDiscount[]);
     } catch (err) {
       console.error('Error loading auto discounts:', err);
       setError('Failed to load auto-triggered discounts');
@@ -46,7 +66,7 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [loadAutoDiscounts]);
+  }, [loadAutoDiscounts, limit, page]);
 
   // Load auto discounts on mount
   useEffect(() => {
@@ -57,7 +77,11 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
     autoDiscounts,
     isLoading,
     error,
+    page,
+    totalPages,
     refreshAutoDiscounts,
+    setLimit,
+    onPageChange,
   };
 
   return (

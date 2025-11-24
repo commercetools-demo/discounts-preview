@@ -14,6 +14,7 @@ import {
   PlusThinIcon,
   CloseIcon,
 } from '@commercetools-uikit/icons';
+import Spacings from '@commercetools-uikit/spacings';
 
 const Predicate = styled.p`
   font-size: 12px;
@@ -42,36 +43,40 @@ const DiscountCard: React.FC<DiscountCardProps> = ({ discount }) => {
 
   return (
     <Card>
-      <Text.Headline as="h2" tone="primary">
-        {discountName}
-      </Text.Headline>
-      <Predicate>{discount.cartPredicate}</Predicate>
-      <BadgeContainer>
-        <Stamp
-          tone={discount.isActive ? 'positive' : 'critical'}
-          icon={discount.isActive ? <CheckActiveIcon /> : <CheckInactiveIcon />}
-          label={
-            discount.isActive
-              ? intl.formatMessage(messages.active)
-              : intl.formatMessage(messages.inactive)
-          }
-        ></Stamp>
-        <Stamp
-          tone={discount.stackingMode === 'Stacking' ? 'primary' : 'warning'}
-          icon={
-            discount.stackingMode === 'Stacking' ? (
-              <PlusThinIcon />
-            ) : (
-              <CloseIcon />
-            )
-          }
-          label={
-            discount.stackingMode === 'Stacking'
-              ? intl.formatMessage(messages.stackable)
-              : intl.formatMessage(messages.notStackable)
-          }
-        ></Stamp>
-      </BadgeContainer>
+      <Spacings.Stack scale="s">
+        <Text.Headline as="h2" tone="primary">
+          {discountName}
+        </Text.Headline>
+        <Predicate>{discount.cartPredicate}</Predicate>
+        <BadgeContainer>
+          <Stamp
+            tone={discount.isActive ? 'positive' : 'critical'}
+            icon={
+              discount.isActive ? <CheckActiveIcon /> : <CheckInactiveIcon />
+            }
+            label={
+              discount.isActive
+                ? intl.formatMessage(messages.active)
+                : intl.formatMessage(messages.inactive)
+            }
+          ></Stamp>
+          <Stamp
+            tone={discount.stackingMode === 'Stacking' ? 'primary' : 'warning'}
+            icon={
+              discount.stackingMode === 'Stacking' ? (
+                <PlusThinIcon />
+              ) : (
+                <CloseIcon />
+              )
+            }
+            label={
+              discount.stackingMode === 'Stacking'
+                ? intl.formatMessage(messages.stackable)
+                : intl.formatMessage(messages.notStackable)
+            }
+          ></Stamp>
+        </BadgeContainer>
+      </Spacings.Stack>
     </Card>
   );
 };
