@@ -145,5 +145,29 @@ export default defineMessages({
     id: 'CartContent.totalDiscounts',
     defaultMessage: 'Total Discounts: {price}',
   },
+  productDiscountsTitle: {
+    id: 'CartContent.productDiscountsTitle',
+    defaultMessage: 'Product Discounts:',
+  },
+  cartDiscountsTitle: {
+    id: 'CartContent.cartDiscountsTitle',
+    defaultMessage: 'Cart Discounts:',
+  },
+  productDiscountsSubtotal: {
+    id: 'CartContent.productDiscountsSubtotal',
+    defaultMessage: 'Product Discounts Subtotal:',
+  },
+  discountCode: {
+    id: 'CartContent.discountCode',
+    defaultMessage: 'Discount Code: {name}',
+  },
+  cartDiscountsSubtotal: {
+    id: 'CartContent.cartDiscountsSubtotal',
+    defaultMessage: 'Cart Discounts Subtotal:',
+  },
+  totalAllDiscounts: {
+    id: 'CartContent.totalAllDiscounts',
+    defaultMessage: 'Total All Discounts:',
+  },
 });
 

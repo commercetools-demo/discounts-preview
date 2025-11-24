@@ -7,16 +7,20 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import React from 'react';
 import { useIntl } from 'react-intl';
-import type { Money } from '@commercetools/platform-sdk';
+import type {
+  ProductDiscountReference,
+  Money,
+  CartDiscountReference,
+} from '@commercetools/platform-sdk';
 import { useCurrentCart } from '../../contexts';
 import { useCartAnalysis } from '../../hooks/use-cart-analysis';
-import AppliedDiscountsSection from './AppliedDiscountsSection';
+import AppliedDiscountsSection from './applied-discounts-section';
 import CartTotalsSection from './cart-total-section';
 import DiscountAnalysisSection from './DiscountAnalysisSection';
 import LineItemCard from './lineitem-card';
 import messages from './messages';
 import PotentialDiscountsSection from './PotentialDiscountsSection';
-import { useMoney } from '../../hooks/use-localization';
+import { useLocalizedString, useMoney } from '../../hooks/use-localization';
 
 const collapsiblePanelStyles = css`
   padding-left: 20px;
@@ -42,6 +46,7 @@ const EmptyState = styled.div`
 const CartContent: React.FC = () => {
   const { currentCart: cartData, isLoading } = useCurrentCart();
   const { addMoney } = useMoney();
+  const { convertLocalizedString } = useLocalizedString();
   const intl = useIntl();
   const { cartAnalysis, isAnalyzing } = useCartAnalysis(cartData);
 
@@ -49,7 +54,6 @@ const CartContent: React.FC = () => {
     // return updatingLineItems && updatingLineItems.has(lineItemId);
     return false;
   };
-
 
   const onRemoveDiscount = (discountCodeId: string) => {
     // removeDiscountCode(discountCodeId);
@@ -60,7 +64,11 @@ const CartContent: React.FC = () => {
     totalCartDiscounts: Money;
     totalProductDiscounts: Money;
     totalAllDiscounts: Money;
+    cartDiscountMap: Map<string, { name: string; value: Money }>;
+    productDiscountMap: Map<string, { name: string; value: Money }>;
   } => {
+    const cartDiscountMap = new Map();
+    const productDiscountMap = new Map();
     const currencyCode = cartData?.totalPrice.currencyCode || 'USD';
     const zeroMoney: Money = {
       centAmount: 0,
@@ -72,6 +80,8 @@ const CartContent: React.FC = () => {
         totalCartDiscounts: zeroMoney,
         totalProductDiscounts: zeroMoney,
         totalAllDiscounts: zeroMoney,
+        cartDiscountMap: new Map(),
+        productDiscountMap: new Map(),
       };
     }
 
@@ -82,6 +92,16 @@ const CartContent: React.FC = () => {
     if (cartData.discountOnTotalPrice?.discountedAmount?.centAmount) {
       totalCartDiscountsCents +=
         cartData.discountOnTotalPrice.discountedAmount.centAmount;
+      cartData.discountOnTotalPrice.includedDiscounts.forEach((discount) => {
+        const name =
+          convertLocalizedString(
+            (discount.discount as CartDiscountReference)?.obj?.name
+          ) || 'Unnamed Cart Discount';
+        cartDiscountMap.set(discount.discount.id, {
+          name: name,
+          value: discount.discountedAmount,
+        });
+      });
     }
 
     // Line item discounts
@@ -91,6 +111,30 @@ const CartContent: React.FC = () => {
         const productDiscountPerUnit =
           item.price.value.centAmount - item.price.discounted.value.centAmount;
         totalProductDiscountsCents += productDiscountPerUnit * item.quantity;
+        const discountId = item.price.discounted.discount.id;
+        const discountName =
+          convertLocalizedString(
+            (item.price.discounted.discount as ProductDiscountReference)?.obj
+              ?.name
+          ) || 'Product Discount';
+
+        if (productDiscountMap.has(discountId)) {
+          productDiscountMap.set(discountId, {
+            name: discountName,
+            value: addMoney(productDiscountMap.get(discountId).value, {
+              centAmount: totalProductDiscountsCents,
+              currencyCode,
+            }),
+          });
+        } else {
+          productDiscountMap.set(discountId, {
+            name: discountName,
+            value: {
+              centAmount: totalProductDiscountsCents,
+              currencyCode,
+            },
+          });
+        }
       }
 
       // Cart discounts on line items
@@ -104,6 +148,30 @@ const CartContent: React.FC = () => {
               (discount) => {
                 totalCartDiscountsCents +=
                   discount.discountedAmount.centAmount * priceQuantity.quantity;
+
+                const discountId = discount.discount.id;
+                const discountName =
+                  convertLocalizedString(
+                    (discount.discount as CartDiscountReference)?.obj?.name
+                  ) || 'Cart Discount';
+
+                if (cartDiscountMap.has(discountId)) {
+                  cartDiscountMap.set(discountId, {
+                    name: discountName,
+                    value: addMoney(cartDiscountMap.get(discountId).value, {
+                      centAmount: discount.discountedAmount.centAmount,
+                      currencyCode,
+                    }),
+                  });
+                } else {
+                  cartDiscountMap.set(discountId, {
+                    name: discountName,
+                    value: {
+                      centAmount: discount.discountedAmount.centAmount,
+                      currencyCode,
+                    },
+                  });
+                }
               }
             );
           }
@@ -124,8 +192,16 @@ const CartContent: React.FC = () => {
         centAmount: totalCartDiscountsCents + totalProductDiscountsCents,
         currencyCode,
       },
+      cartDiscountMap,
+      productDiscountMap,
     };
   };
+
+  const discountData = calculateDiscountData();
+  const subtotalWithoutDiscounts = addMoney(
+    cartData?.totalPrice,
+    discountData.totalAllDiscounts
+  );
 
   if (isLoading || isAnalyzing) {
     return (
@@ -156,12 +232,6 @@ const CartContent: React.FC = () => {
     );
   }
 
-  const discountData = calculateDiscountData();
-  const subtotalWithoutDiscounts = addMoney(
-    cartData.totalPrice,
-    discountData.totalAllDiscounts
-  );
-
   return (
     <CollapsiblePanel
       header={intl.formatMessage(messages.headerTitle)}
@@ -173,10 +243,7 @@ const CartContent: React.FC = () => {
         {/* Line Items */}
         <Card>
           {cartData.lineItems.map((item) => (
-            <LineItemCard
-              key={item.id}
-              item={item}
-            />
+            <LineItemCard key={item.id} item={item} />
           ))}
         </Card>
 
@@ -197,6 +264,7 @@ const CartContent: React.FC = () => {
         {/* Customer Applied Discounts */}
         <AppliedDiscountsSection
           cartData={cartData}
+          discountData={discountData}
           onRemoveDiscount={onRemoveDiscount}
         />
 
