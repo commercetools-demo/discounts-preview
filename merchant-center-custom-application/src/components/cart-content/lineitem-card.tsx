@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { designTokens } from '@commercetools-uikit/design-system';
 import Text from '@commercetools-uikit/text';
 import { useIntl } from 'react-intl';
-import type { LineItem as LineItemType } from '@commercetools/platform-sdk';
+import type {
+  LineItem as LineItemType,
+  Money,
+} from '@commercetools/platform-sdk';
 import QuantityControls from './quantity-controls';
 import DiscountBreakdown from './discounts-breakdown';
 import messages from './messages';
 import { useLocalizedString, useMoney } from '../../hooks/use-localization';
 import { useCurrentCart } from '../../contexts/current-cart-context';
-
+import Spacing from '@commercetools-uikit/spacings';
+import FlatButton from '@commercetools-uikit/flat-button';
 const LineItem = styled.div`
   display: flex;
   align-items: flex-start;
@@ -52,10 +56,6 @@ const ImagePlaceholder = styled.div`
   color: ${designTokens.colorNeutral60};
 `;
 
-const ItemDetails = styled.div`
-  flex-grow: 1;
-`;
-
 const ItemName = styled.h3`
   font-size: 16px;
   font-weight: 500;
@@ -63,68 +63,89 @@ const ItemName = styled.h3`
   color: ${designTokens.colorSolid};
 `;
 
-const PriceText = styled.p`
-  font-size: 14px;
-  margin: 4px 0;
-  color: ${designTokens.colorNeutral60};
-
-  &.retail {
-    font-weight: 600;
-  }
-
-  &.discounted {
-    color: ${designTokens.colorPrimary};
-    font-weight: 600;
-  }
-`;
-
-const BreakdownButton = styled.button`
-  font-size: 12px;
-  color: ${designTokens.colorInfo};
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-top: 8px;
-  padding: 0;
-  text-decoration: underline;
-
-  &:hover {
-    color: ${designTokens.colorPrimary};
-  }
-
-  &:focus {
-    outline: none;
-  }
-`;
-
 interface LineItemCardProps {
   item: LineItemType;
 }
 
-const LineItemCard: React.FC<LineItemCardProps> = ({
-  item,
-}) => {
+const LineItemCard: React.FC<LineItemCardProps> = ({ item }) => {
   const intl = useIntl();
   const { convertLocalizedString } = useLocalizedString();
-  const { convertMoneytoString } = useMoney();
+  const { convertMoneytoString, divideMoney, multiplyMoney } = useMoney();
   const { updateLineItemQuantity } = useCurrentCart();
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const hasDiscount = item.price?.discounted
+  const unitDiscountedPrice = divideMoney(item.totalPrice, item.quantity);
+  const retailUnitPrice = item.price.value.centAmount;
+  const hasDiscount = retailUnitPrice !== unitDiscountedPrice?.centAmount;
+
+  // Check for any type of discount - either discountedPricePerQuantity OR product discount
+  const anyTypeDiscount =
+    (item.discountedPricePerQuantity &&
+      item.discountedPricePerQuantity.length > 0) ||
+    item.price.discounted;
+
+  const unitDiscount: Money | null = useMemo(() => {
+    if (anyTypeDiscount) {
+      let unitDiscountAmount = 0;
+
+      // Product discount per unit
+      if (item.price.discounted) {
+        unitDiscountAmount +=
+          item.price.value.centAmount - item.price.discounted.value.centAmount;
+      }
+
+      // Cart discounts per unit - FIXED: Handle multiple discount groups
+      if (
+        item.discountedPricePerQuantity &&
+        item.discountedPricePerQuantity.length > 0
+      ) {
+        const cartDiscountPerUnit = item.discountedPricePerQuantity.reduce(
+          (total, priceQuantity) => {
+            const discountSum =
+              priceQuantity.discountedPrice.includedDiscounts?.reduce(
+                (sum, discount) => {
+                  return sum + discount.discountedAmount.centAmount;
+                },
+                0
+              ) || 0;
+            return total + discountSum;
+          },
+          0
+        );
+        unitDiscountAmount += cartDiscountPerUnit;
+      }
+
+      return {
+        centAmount: unitDiscountAmount,
+        currencyCode: item.price.value.currencyCode,
+      };
+    }
+    return null;
+  }, [anyTypeDiscount, item.price.discounted, item.discountedPricePerQuantity]);
+
+  const totalDiscount = useMemo(() => {
+    if (unitDiscount) {
+      return multiplyMoney(unitDiscount, item.quantity);
+    }
+    return null;
+  }, [unitDiscount, item.quantity]);
 
   const itemName = convertLocalizedString(item.name);
-  const imageUrl = item.variant.images && item.variant.images.length > 0 
-    ? item.variant.images[0].url 
-    : null;
+  const imageUrl =
+    item.variant.images && item.variant.images.length > 0
+      ? item.variant.images[0].url
+      : null;
 
-    const onUpdateQuantity = (lineItemId: string, newQuantity: number) => {
-      setIsUpdating(true);
-      updateLineItemQuantity(lineItemId, newQuantity).finally(() => {
+  const onUpdateQuantity = (lineItemId: string, newQuantity: number) => {
+    setIsUpdating(true);
+    updateLineItemQuantity(lineItemId, newQuantity)
+      .finally(() => {
         setIsUpdating(false);
-      }).catch(() => {
+      })
+      .catch(() => {
         setIsUpdating(false);
       });
-    };
+  };
 
   return (
     <LineItem>
@@ -138,24 +159,26 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
         )}
       </ImageContainer>
 
-      <ItemDetails>
-        <ItemName>{itemName}</ItemName>
-        <PriceText className="retail">
-          {intl.formatMessage(messages.retailUnitPrice, {
-            price: convertMoneytoString(item.price.value)
-          })}
-        </PriceText>
-        <PriceText className="discounted">
-          {hasDiscount 
-            ? intl.formatMessage(messages.discountedPrice, {
-                price: convertMoneytoString(item.price?.discounted?.value)
-              })
-            : intl.formatMessage(messages.regularPrice, {
-                price: convertMoneytoString(item.price.value)
-              })
-          }
-        </PriceText>
-
+      <Spacing.Stack scale="m">
+        <Spacing.Stack scale="xs">
+          <ItemName>{itemName}</ItemName>
+          <Text.Detail tone="information" fontWeight="bold">
+            {intl.formatMessage(messages.retailUnitPrice, {
+              price: convertMoneytoString(item.price.value),
+            })}
+          </Text.Detail>
+          <Text.Detail
+            tone={hasDiscount ? 'positive' : 'secondary'}
+            fontWeight="bold"
+          >
+            {intl.formatMessage(
+              hasDiscount ? messages.discountedPrice : messages.regularPrice,
+              {
+                price: convertMoneytoString(unitDiscountedPrice),
+              }
+            )}
+          </Text.Detail>
+        </Spacing.Stack>
         <QuantityControls
           lineItemId={item.id}
           quantity={item.quantity}
@@ -163,29 +186,48 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
           onUpdateQuantity={onUpdateQuantity}
         />
 
-        {hasDiscount && (
+        {anyTypeDiscount && (
           <>
-            <PriceText style={{ marginTop: '12px' }}>
-              {intl.formatMessage(messages.priceForItems, {
-                count: item.quantity,
-                price: convertMoneytoString(item.totalPrice)
-              })}
-            </PriceText>
-            <BreakdownButton onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}>
-              {isBreakdownOpen 
-                ? intl.formatMessage(messages.hideBreakdown)
-                : intl.formatMessage(messages.showBreakdown)
-              }
-            </BreakdownButton>
+            <Spacing.Stack scale="xs">
+              <Text.Detail tone="primary">
+                {intl.formatMessage(messages.discountedUnitPrice, {
+                  price: convertMoneytoString(unitDiscountedPrice),
+                })}
+              </Text.Detail>
+              <Text.Detail tone="positive">
+                {intl.formatMessage(messages.discountPerUnit, {
+                  price: convertMoneytoString(multiplyMoney(unitDiscount, -1)),
+                })}
+              </Text.Detail>
+            </Spacing.Stack>
 
-            {isBreakdownOpen && (
-              <DiscountBreakdown
-                item={item}
-              />
-            )}
+            {/* Total Pricing Information */}
+            <Spacing.Stack scale="xs">
+              <Text.Detail tone="primary">
+                {intl.formatMessage(messages.priceForItems, {
+                  count: item.quantity,
+                  price: convertMoneytoString(item.totalPrice),
+                })}
+              </Text.Detail>
+              <Text.Detail tone="positive">
+                {intl.formatMessage(messages.totalDiscounts, {
+                  price: convertMoneytoString(multiplyMoney(totalDiscount, -1)),
+                })}
+              </Text.Detail>
+            </Spacing.Stack>
+            <FlatButton
+              label={
+                isBreakdownOpen
+                  ? intl.formatMessage(messages.hideBreakdown)
+                  : intl.formatMessage(messages.showBreakdown)
+              }
+              onClick={() => setIsBreakdownOpen(!isBreakdownOpen)}
+            />
+
+            {isBreakdownOpen && <DiscountBreakdown item={item} />}
           </>
         )}
-      </ItemDetails>
+      </Spacing.Stack>
     </LineItem>
   );
 };
@@ -193,4 +235,3 @@ const LineItemCard: React.FC<LineItemCardProps> = ({
 LineItemCard.displayName = 'LineItemCard';
 
 export default LineItemCard;
-

@@ -38,8 +38,11 @@ interface CurrentCartProviderProps {
 export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
   children,
 }) => {
-  const { getCarts, updateLineItemQuantity: updateLineItemQuantityAction } =
-    useCartFetcher();
+  const {
+    getCarts,
+    updateLineItemQuantity: updateLineItemQuantityAction,
+    getCart,
+  } = useCartFetcher();
   const { currentCustomer } = useCurrentCustomer();
   const [carts, setCarts] = useState<Cart[]>([]);
   const [currentCart, setCurrentCart] = useState<Cart | null>(null);
@@ -51,6 +54,20 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
   const [updatingLineItems, setUpdatingLineItems] = useState<Set<string>>(
     new Set()
   );
+
+  const onSetCurrentCart = useCallback(async (cart: Cart | null) => {
+    if (cart) {
+      const cartWithExpand = await getCart(cart.id, [
+        'discountCodes[*].discountCode',
+        'discountOnTotalPrice.includedDiscounts[*].discount',
+        'lineItems[*].discountedPricePerQuantity[*].discountedPrice.includedDiscounts[*].discount',
+        'lineItems[*].price.discounted.discount',
+      ]);
+      setCurrentCart(cartWithExpand);
+    } else {
+      setCurrentCart(null);
+    }
+  }, []);
 
   const loadCartData = useCallback(
     async (customerId: string, applyBestPromo: boolean): Promise<void> => {
@@ -164,7 +181,7 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
     error,
     appliedDiscountCodes,
     updatingLineItems,
-    setCurrentCart,
+    setCurrentCart: onSetCurrentCart,
     loadCartData,
     updateLineItemQuantity,
     applyDiscountCode,

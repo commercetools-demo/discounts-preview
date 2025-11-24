@@ -5,7 +5,7 @@ import {
   TSdkAction,
   useAsyncDispatch,
 } from '@commercetools-frontend/sdk';
-import { Cart, PagedQueryResponse } from '@commercetools/platform-sdk';
+import { Cart, ClientResponse, PagedQueryResponse } from '@commercetools/platform-sdk';
 import { buildUrlWithParams } from '../utils/url';
 import { useCallback } from 'react';
 
@@ -16,13 +16,15 @@ export const useCartFetcher = () => {
   const dispatchCartsRead = useAsyncDispatch<TSdkAction, PagedQueryResponse>();
 
   const getCart = useCallback(
-    async (cartId: string): Promise<Cart> => {
+    async (cartId: string, expand?: string[]): Promise<Cart> => {
       const result = await dispatchCartAction(
         actions.get({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
           uri: buildUrlWithParams(
             `/${context?.project?.key}/carts/${cartId}`,
-            {}
+            {
+              ...(expand ? { expand } : {}),
+            }
           ),
         })
       );
@@ -32,12 +34,13 @@ export const useCartFetcher = () => {
   );
 
   const getCarts = useCallback(
-    async (where?: string): Promise<Cart[]> => {
+    async (where?: string, expand?: string[]): Promise<Cart[]> => {
       const result = await dispatchCartsRead(
         actions.get({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
           uri: buildUrlWithParams(`/${context?.project?.key}/carts`, {
             ...(where ? { where: where } : {}),
+            ...(expand ? { expand } : {}),
             limit: '500',
           }),
         })

@@ -3,9 +3,12 @@ import styled from '@emotion/styled';
 import { designTokens } from '@commercetools-uikit/design-system';
 import Text from '@commercetools-uikit/text';
 import { useIntl } from 'react-intl';
-import type { LineItem } from '@commercetools/platform-sdk';
+import type {
+  CartDiscountReference,
+  LineItem,
+} from '@commercetools/platform-sdk';
 import messages from './messages';
-import { useMoney } from '../../hooks/use-localization';
+import { useLocalizedString, useMoney } from '../../hooks/use-localization';
 
 const Container = styled.div`
   margin-top: 12px;
@@ -14,7 +17,6 @@ const Container = styled.div`
 `;
 
 const Section = styled.div`
-  background-color: ${designTokens.colorNeutral95};
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 8px;
@@ -22,10 +24,10 @@ const Section = styled.div`
   &:last-child {
     margin-bottom: 0;
   }
+`;
 
-  &.product-discount {
-    background-color: ${designTokens.colorInfo95};
-  }
+const StyledDiscountBreakdown = styled.div`
+  padding-left: 8px;
 `;
 
 interface DiscountBreakdownProps {
@@ -35,6 +37,7 @@ interface DiscountBreakdownProps {
 const DiscountBreakdown: React.FC<DiscountBreakdownProps> = ({ item }) => {
   const intl = useIntl();
   const { convertMoneytoString, subtractMoney, multiplyMoney } = useMoney();
+  const { convertLocalizedString } = useLocalizedString();
   return (
     <Container>
       {/* Product Discount Section */}
@@ -44,29 +47,31 @@ const DiscountBreakdown: React.FC<DiscountBreakdownProps> = ({ item }) => {
             {intl.formatMessage(messages.productDiscount)}
           </Text.Detail>
           <Text.Detail>
-            {item.price.discounted.discount.obj?.name.en ||
-              item.price.discounted.discount.obj?.name['en-US'] ||
-              item.price.discounted.discount.obj?.name['en-AU'] ||
-              'Product Discount'}
+            {convertLocalizedString(item.price.discounted.discount?.obj?.name)}
           </Text.Detail>
-          <Text.Detail>
-            {intl.formatMessage(messages.perUnit, {
-              price: convertMoneytoString(
-                subtractMoney(item.price.value, item.price.discounted.value)
-              ),
-            })}
-          </Text.Detail>
-          <Text.Detail>
-            {intl.formatMessage(messages.totalUnits, {
-              count: item.quantity,
-              price: convertMoneytoString(
-                multiplyMoney(
-                  subtractMoney(item.price.value, item.price.discounted.value),
-                  item.quantity
-                )
-              ),
-            })}
-          </Text.Detail>
+          <StyledDiscountBreakdown>
+            <Text.Detail>
+              {intl.formatMessage(messages.perUnit, {
+                price: convertMoneytoString(
+                  subtractMoney(item.price.value, item.price.discounted.value)
+                ),
+              })}
+            </Text.Detail>
+            <Text.Detail>
+              {intl.formatMessage(messages.totalUnits, {
+                count: item.quantity,
+                price: convertMoneytoString(
+                  multiplyMoney(
+                    subtractMoney(
+                      item.price.value,
+                      item.price.discounted.value
+                    ),
+                    item.quantity
+                  )
+                ),
+              })}
+            </Text.Detail>
+          </StyledDiscountBreakdown>
         </Section>
       )}
 
@@ -81,27 +86,29 @@ const DiscountBreakdown: React.FC<DiscountBreakdownProps> = ({ item }) => {
             priceQuantity.discountedPrice.includedDiscounts?.map(
               (discount, discIdx) => (
                 <div key={`${idx}-${discIdx}`}>
-                  <Text.Detail>
-                    {discount.discount.obj?.name.en ||
-                      discount.discount.obj?.name['en-US'] ||
-                      discount.discount.obj?.name['en-AU'] ||
-                      'Cart Discount'}
+                  <Text.Detail fontWeight="medium">
+                    {convertLocalizedString(
+                      (discount.discount as CartDiscountReference)?.obj?.name
+                    )}
                   </Text.Detail>
-                  <Text.Detail>
-                    {intl.formatMessage(messages.perUnit, {
-                      price: convertMoneytoString(
-                        discount.discountedAmount
-                      ),
-                    })}
-                  </Text.Detail>
-                  <Text.Detail>
-                    {intl.formatMessage(messages.totalUnits, {
-                      count: priceQuantity.quantity,
-                      price: convertMoneytoString(
-                        multiplyMoney(discount.discountedAmount, priceQuantity.quantity)
-                      ),
-                    })}
-                  </Text.Detail>
+                  <StyledDiscountBreakdown>
+                    <Text.Detail>
+                      {intl.formatMessage(messages.perUnit, {
+                        price: convertMoneytoString(discount.discountedAmount),
+                      })}
+                    </Text.Detail>
+                    <Text.Detail>
+                      {intl.formatMessage(messages.totalUnits, {
+                        count: priceQuantity.quantity,
+                        price: convertMoneytoString(
+                          multiplyMoney(
+                            discount.discountedAmount,
+                            priceQuantity.quantity
+                          )
+                        ),
+                      })}
+                    </Text.Detail>
+                  </StyledDiscountBreakdown>
                 </div>
               )
             )

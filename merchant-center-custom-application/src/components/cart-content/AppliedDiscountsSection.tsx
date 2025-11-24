@@ -69,7 +69,7 @@ const AppliedDiscountsSection: React.FC<AppliedDiscountsSectionProps> = ({
         {cartData.discountCodes && cartData.discountCodes.length > 0 ? (
           cartData.discountCodes.map((discount) => (
             <DiscountItem key={discount.discountCode.id}>
-              <Text.Body fontWeight="bold">{discount.discountCode.obj.name.en}</Text.Body>
+              <Text.Body fontWeight="bold">{discount.discountCode.obj?.name?.en}</Text.Body>
               <SecondaryButton
                 iconLeft={<BinLinearIcon />}
                 label={intl.formatMessage(messages.remove)}

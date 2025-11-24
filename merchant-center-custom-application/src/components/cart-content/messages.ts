@@ -133,5 +133,17 @@ export default defineMessages({
     id: 'CartContent.noImage',
     defaultMessage: 'No Image',
   },
+  discountedUnitPrice: {
+    id: 'CartContent.discountedUnitPrice',
+    defaultMessage: 'Discounted Unit Price: {price}',
+  },
+  discountPerUnit: {
+    id: 'CartContent.discountPerUnit',
+    defaultMessage: 'Discount per unit: {price}',
+  },
+  totalDiscounts: {
+    id: 'CartContent.totalDiscounts',
+    defaultMessage: 'Total Discounts: {price}',
+  },
 });
 

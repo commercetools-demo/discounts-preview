@@ -28,6 +28,14 @@ export const useMoney = () => {
     };
   }, [context?.dataLocale]);
 
+  const divideMoney = useCallback((money?: Money | null, divisor?: number) => {
+    if (!money || !divisor) return null;
+    return {
+      centAmount: money.centAmount / (divisor || 0),
+      currencyCode: money.currencyCode,
+    };
+  }, [context?.dataLocale]);
+
   const convertMoneytoString = useCallback(
     (money?: Money | null) => {
       if (!money) return '';
@@ -43,6 +51,7 @@ export const useMoney = () => {
     addMoney,
     subtractMoney,
     multiplyMoney,
+    divideMoney,
     convertMoneytoString,
   };
 };
