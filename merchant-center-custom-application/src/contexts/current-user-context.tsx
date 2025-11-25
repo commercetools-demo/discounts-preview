@@ -43,9 +43,9 @@ export const CurrentUserProvider: React.FC<CurrentUserProviderProps> = ({
       getCustomers().then((customers) => {
         setCustomers(customers);
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching customers:', err);
-      setError('Failed to load customers' + err.message);
+      setError('Failed to load customers' + (err as Error)?.message);
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { designTokens } from '@commercetools-uikit/design-system';
 import SecondaryButton from '@commercetools-uikit/secondary-button';
 import CheckboxInput from '@commercetools-uikit/checkbox-input';
-import SelectInput from '@commercetools-uikit/select-input';
+import SelectInput, { TCustomEvent } from '@commercetools-uikit/select-input';
 import { RefreshIcon } from '@commercetools-uikit/icons';
 import { useIntl } from 'react-intl';
 import { useCurrentCart, useCurrentCustomer } from '../../contexts';
@@ -76,7 +76,7 @@ const CartIdForm: React.FC = () => {
     }));
   }, [carts]);
 
-  const handleCustomerSelect = (event: any) => {
+  const handleCustomerSelect = (event: TCustomEvent) => {
     const customerId = event.target.value;
     if (customerId) {
       const customer = customers.find((c) => c.id === customerId);
@@ -89,7 +89,7 @@ const CartIdForm: React.FC = () => {
     }
   };
 
-  const handleCartSelect = (event: any) => {
+  const handleCartSelect = (event: TCustomEvent) => {
     const cartId = event.target.value;
     const cart = carts?.find((c) => c.id === cartId);
     if (cart) {
@@ -112,7 +112,7 @@ const CartIdForm: React.FC = () => {
           <SelectInput
             name="customer-select"
             isClearable
-            value={(currentCustomer?.id ?? '') as any}
+            value={(currentCustomer?.id ?? '') as string}
             onChange={handleCustomerSelect}
             options={customerOptions}
             placeholder={intl.formatMessage(messages.selectCustomer)}
@@ -126,7 +126,7 @@ const CartIdForm: React.FC = () => {
             <SelectInput
               name="cart-select"
               isClearable
-              value={(currentCart?.id ?? '') as any}
+              value={(currentCart?.id ?? '') as string}
               onChange={handleCartSelect}
               options={cartOptions}
               placeholder={intl.formatMessage(messages.selectCart)}

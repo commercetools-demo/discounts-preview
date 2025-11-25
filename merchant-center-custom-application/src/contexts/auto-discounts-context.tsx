@@ -40,13 +40,6 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
   const [page, setPage] = useState<number>(1);
   const [total, setTotal] = useState<number>(0);
 
-  const onPageChange = (page: number) => {
-    if (page >= 1) {
-      setPage(page);
-      refreshAutoDiscounts();
-    }
-  };
-
   const totalPages = useMemo(() => {
     return Math.ceil(total / limit);
   }, [total, limit]);
@@ -67,6 +60,13 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
       setIsLoading(false);
     }
   }, [loadAutoDiscounts, limit, page]);
+
+  const onPageChange = (page: number) => {
+    if (page >= 1) {
+      setPage(page);
+      refreshAutoDiscounts();
+    }
+  };
 
   // Load auto discounts on mount
   useEffect(() => {

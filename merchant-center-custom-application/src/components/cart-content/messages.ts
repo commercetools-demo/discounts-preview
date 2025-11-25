@@ -79,15 +79,15 @@ export default defineMessages({
   },
   qualifiedDiscounts: {
     id: 'CartContent.qualifiedDiscounts',
-    defaultMessage: '✅ Qualified Discounts ({count})',
+    defaultMessage: 'Qualified Discounts ({count})',
   },
   potentialDiscountsSection: {
     id: 'CartContent.potentialDiscountsSection',
-    defaultMessage: '⏳ Potential Discounts ({count})',
+    defaultMessage: 'Potential Discounts ({count})',
   },
   otherDiscounts: {
     id: 'CartContent.otherDiscounts',
-    defaultMessage: 'ℹ️ Other Available Discounts ({count})',
+    defaultMessage: 'Other Available Discounts ({count})',
   },
   applied: {
     id: 'CartContent.applied',

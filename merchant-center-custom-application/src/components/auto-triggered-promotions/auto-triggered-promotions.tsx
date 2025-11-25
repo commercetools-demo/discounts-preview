@@ -49,7 +49,8 @@ const StyledWrapper = styled.div`
 
 const AutoTriggeredPromotions: React.FC = () => {
   const intl = useIntl();
-  const { autoDiscounts, isLoading, error, page, totalPages, onPageChange } = useAutoDiscounts();
+  const { autoDiscounts, isLoading, error, page, totalPages, onPageChange } =
+    useAutoDiscounts();
 
   if (error) {
     return (
@@ -89,17 +90,16 @@ const AutoTriggeredPromotions: React.FC = () => {
       ) : (
         <StyledWrapper>
           {autoDiscounts.map((discount) => (
-          <DiscountCard key={discount.id} discount={discount} />
-        ))}
+            <DiscountCard key={discount.id} discount={discount} />
+          ))}
         </StyledWrapper>
       )}
       <StyledDiv>
-      <PageNavigator
-        page={page}
-        onPageChange={onPageChange}
-        totalPages={totalPages}
-      
-      />
+        <PageNavigator
+          page={page}
+          onPageChange={onPageChange}
+          totalPages={totalPages}
+        />
       </StyledDiv>
     </CollapsiblePanel>
   );

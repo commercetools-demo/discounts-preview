@@ -16,10 +16,10 @@ import { useCurrentCart } from '../../contexts';
 import { useCartAnalysis } from '../../hooks/use-cart-analysis';
 import AppliedDiscountsSection from './applied-discounts-section';
 import CartTotalsSection from './cart-total-section';
-import DiscountAnalysisSection from './DiscountAnalysisSection';
+import DiscountAnalysisSection from './discount-analysis-section';
 import LineItemCard from './lineitem-card';
 import messages from './messages';
-import PotentialDiscountsSection from './PotentialDiscountsSection';
+import PotentialDiscountsSection from './potential-discounts-section';
 import { useLocalizedString, useMoney } from '../../hooks/use-localization';
 
 const collapsiblePanelStyles = css`
@@ -30,6 +30,9 @@ const collapsiblePanelStyles = css`
 const ContentArea = styled.div`
   width: 100%;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 const LoadingContainer = styled.div`

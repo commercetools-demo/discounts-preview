@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Cart, CartDiscount } from '@commercetools/platform-sdk';
+import { evaluatePredicate, type EvaluationResult } from '../utils/discount';
+import { useAutoDiscounts } from '../contexts/auto-discounts-context';
+import { useLocalizedString } from './use-localization';
 
 export interface CategoryData {
   id: string;
@@ -34,83 +37,224 @@ export interface DiscountAnalysis {
   remainingCount?: number;
 }
 
+interface CacheState {
+  autoDiscounts: CartDiscount[] | null;
+  lastFetchTime: number | null;
+  expiryTime: number;
+}
+
+/**
+ * Hook for analyzing cart data against auto-triggered discounts
+ */
 export const useCartAnalysis = (cartData: Cart | null) => {
   const [cartAnalysis, setCartAnalysis] = useState<CartAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { autoDiscounts, error: autoDiscountsError } = useAutoDiscounts();
+  const { convertLocalizedString } = useLocalizedString();
 
+  const extractLineItemCategories = (
+    lineItem: Cart['lineItems'][number]
+  ): Array<{ id: string; name?: string }> => {
+    // Categories might be in different places depending on your setup:
+    // 1. On the product (if expanded)
+    // 2. In custom fields
+    // 3. In variant attributes
+
+    const categories: Array<{ id: string; name?: string }> = [];
+
+    // Check for categories on variant (if your data model includes them)
+    const variant = lineItem.variant as
+      | (typeof lineItem.variant & {
+          categories?: Array<{ id: string; name?: Record<string, string> }>;
+        })
+      | undefined;
+
+    if (variant?.categories) {
+      for (const cat of variant.categories) {
+        categories.push({
+          id: cat.id,
+          name: convertLocalizedString(cat.name),
+        });
+      }
+    }
+
+    // Check custom fields for category information
+    const custom = lineItem.custom;
+    if (custom?.fields) {
+      const categoryField =
+        custom.fields['category'] || custom.fields['categoryId'];
+      if (typeof categoryField === 'string') {
+        categories.push({ id: categoryField });
+      }
+    }
+
+    return categories;
+  };
+
+  /**
+   * Extract category data from cart line items
+   */
+  const extractCategoryData = useCallback(
+    (cart: Cart): { categories: CategoryData[]; totalProducts: number } => {
+      const categoryMap = new Map<string, CategoryData>();
+      let totalProducts = 0;
+
+      for (const lineItem of cart.lineItems || []) {
+        totalProducts += lineItem.quantity || 0;
+
+        // Extract categories from line item
+        // Categories might be on the product or in custom fields
+        const categories = extractLineItemCategories(lineItem);
+
+        for (const category of categories) {
+          const existing = categoryMap.get(category.id);
+          if (existing) {
+            existing.quantity += lineItem.quantity || 0;
+            existing.totalPrice += lineItem.totalPrice?.centAmount || 0;
+          } else {
+            categoryMap.set(category.id, {
+              id: category.id,
+              name: category.name || category.id,
+              quantity: lineItem.quantity || 0,
+              totalPrice: lineItem.totalPrice?.centAmount || 0,
+            });
+          }
+        }
+      }
+
+      return {
+        categories: Array.from(categoryMap.values()),
+        totalProducts,
+      };
+    },
+    []
+  );
+
+  /**
+   * Analyze discounts against the cart using the predicate evaluator
+   */
+  const analyzeDiscounts = useCallback(
+    async (
+      discounts: CartDiscount[],
+      categoryData: { categories: CategoryData[]; totalProducts: number },
+      cart: Cart
+    ): Promise<DiscountAnalysis[]> => {
+      const results: DiscountAnalysis[] = [];
+
+      for (const discount of discounts) {
+        // Skip inactive discounts
+        if (!discount.isActive) {
+          results.push({
+            discount,
+            isApplicable: false,
+            type: 'INACTIVE',
+            qualificationStatus: 'NOT_APPLICABLE',
+            qualificationMessage: 'Discount is not active',
+          });
+          continue;
+        }
+
+        // Evaluate the predicate
+        const evaluation = await evaluatePredicate(
+          discount.cartPredicate,
+          cart,
+          {
+            categoryResolver: (categoryId: string) => {
+              const category = categoryData.categories.find(
+                (c) => c.id === categoryId
+              );
+              return category?.name;
+            },
+          }
+        );
+
+        results.push(mapEvaluationToAnalysis(discount, evaluation));
+      }
+
+      return results;
+    },
+    []
+  );
+
+  /**
+   * Full cart analysis
+   */
+  const analyzeCart = useCallback(
+    async (cart: Cart): Promise<CartAnalysis> => {
+      // Extract category data
+      const categoryData = extractCategoryData(cart);
+
+      // Analyze each discount
+      const discountAnalysis = await analyzeDiscounts(
+        autoDiscounts,
+        categoryData,
+        cart
+      );
+
+      return {
+        categories: categoryData.categories,
+        totalProducts: categoryData.totalProducts,
+        autoDiscounts: autoDiscounts,
+        discountAnalysis,
+        error: autoDiscountsError,
+      };
+    },
+    [autoDiscounts, extractCategoryData, analyzeDiscounts]
+  );
+
+  /**
+   * Trigger analysis when cart data changes
+   */
+  const analyzeCartData = useCallback(async (): Promise<void> => {
+    if (!cartData) return;
+
+    setIsAnalyzing(true);
+
+    try {
+      const analysis = await analyzeCart(cartData);
+      setCartAnalysis(analysis);
+    } catch (err) {
+      console.error('Error analyzing cart:', err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }, [cartData, analyzeCart]);
+
+  // Run analysis when cart changes
   useEffect(() => {
     if (cartData) {
       analyzeCartData();
     }
-  }, [cartData]);
-
-  const analyzeCartData = async (): Promise<void> => {
-    // TODO: Implement cart analysis
-    if (!cartData) return;
-
-    setIsAnalyzing(true);
-    setError(null);
-
-    try {
-      // Empty implementation - will be filled later
-      const analysis: CartAnalysis = {
-        categories: [],
-        totalProducts: 0,
-        autoDiscounts: [],
-        discountAnalysis: [],
-        error: null,
-      };
-
-      setCartAnalysis(analysis);
-    } catch (err) {
-      console.error('Error analyzing cart:', err);
-      setError('Failed to analyze cart');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const analyzeCart = async (cartData: Cart): Promise<CartAnalysis> => {
-    // TODO: Implement full cart analysis
-
-    // Empty implementation - will be filled later
-    return {
-      categories: [],
-      totalProducts: 0,
-      autoDiscounts: [],
-      discountAnalysis: [],
-      error: null,
-    };
-  };
-
-  const getAutoDiscounts = async (): Promise<{
-    promotions: CartDiscount[];
-    error: string | null;
-  }> => {
-    // TODO: Implement getting auto discounts with caching
-
-    // Empty implementation - will be filled later
-    return { promotions: [], error: null };
-  };
-
-  const analyzeDiscounts = (
-    discounts: CartDiscount[],
-    categoryData: { categories: CategoryData[]; totalProducts: number },
-    cartData: Cart
-  ): DiscountAnalysis[] => {
-    // TODO: Implement discount analysis logic
-
-    // Empty implementation - will be filled later
-    return [];
-  };
+  }, [cartData, analyzeCartData]);
 
   return {
     cartAnalysis,
     isAnalyzing,
-    error,
-    analyzeCart,
-    getAutoDiscounts,
-    analyzeDiscounts,
   };
 };
+
+/**
+ * Map an EvaluationResult to a DiscountAnalysis
+ */
+function mapEvaluationToAnalysis(
+  discount: CartDiscount,
+  evaluation: EvaluationResult
+): DiscountAnalysis {
+  return {
+    discount,
+    isApplicable: evaluation.isApplicable,
+    type: evaluation.type,
+    qualificationStatus: evaluation.qualificationStatus,
+    qualificationMessage: evaluation.qualificationMessage,
+    qualifiedConditions: evaluation.qualifiedConditions,
+    pendingConditions: evaluation.pendingConditions,
+    categoryName: evaluation.categoryName,
+    categoryNames: evaluation.categoryNames,
+    currentAmount: evaluation.currentAmount,
+    requiredAmount: evaluation.requiredAmount,
+    currentCount: evaluation.currentCount,
+    requiredCount: evaluation.requiredCount,
+    remainingAmount: evaluation.remainingAmount,
+    remainingCount: evaluation.remainingCount,
+  };
+}

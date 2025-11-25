@@ -31,15 +31,6 @@ export const usePromotions = (
   const [isLoading, setIsLoading] = useState(false);
   const [currencyCode, setCurrencyCode] = useState('USD');
 
-  useEffect(() => {
-    if (cartData) {
-      if (cartData.totalPrice?.currencyCode) {
-        setCurrencyCode(cartData.totalPrice.currencyCode);
-      }
-      loadPromotions();
-    }
-  }, [cartData]);
-
   const loadPromotions = async (): Promise<void> => {
     // TODO: Implement promotions loading
     console.log('Loading Discount Codes...');
@@ -83,6 +74,15 @@ export const usePromotions = (
 
     // Empty implementation - will be filled later
   };
+
+  useEffect(() => {
+    if (cartData) {
+      if (cartData.totalPrice?.currencyCode) {
+        setCurrencyCode(cartData.totalPrice.currencyCode);
+      }
+      loadPromotions();
+    }
+  }, [cartData]);
 
   return {
     promotions,
