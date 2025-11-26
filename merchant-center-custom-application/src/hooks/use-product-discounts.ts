@@ -14,11 +14,11 @@ type SortInput = {
   order: 'asc' | 'desc';
 };
 
-export const useCartDiscounts = () => {
+export const useProductDiscounts = () => {
   const context = useApplicationContext((context) => context);
   const dispatchCartAction = useAsyncDispatch<TSdkAction, PagedQueryResponse>();
 
-  const getCartDiscounts = useCallback(
+  const getProductDiscounts = useCallback(
     async (
       where?: string,
       limit?: number,
@@ -28,12 +28,15 @@ export const useCartDiscounts = () => {
       const result = await dispatchCartAction(
         actions.get({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-          uri: buildUrlWithParams(`/${context?.project?.key}/cart-discounts`, {
-            ...(where ? { where: where } : {}),
-            ...(limit ? { limit: limit.toString() } : {}),
-            ...(offset ? { offset: offset.toString() } : {}),
-            ...(sort ? { sort: `${sort.key} ${sort.order}` } : {}),
-          }),
+          uri: buildUrlWithParams(
+            `/${context?.project?.key}/product-discounts`,
+            {
+              ...(where ? { where: where } : {}),
+              ...(limit ? { limit: limit.toString() } : {}),
+              ...(offset ? { offset: offset.toString() } : {}),
+              ...(sort ? { sort: `${sort.key} ${sort.order}` } : {}),
+            }
+          ),
         })
       );
       return result;
@@ -41,30 +44,7 @@ export const useCartDiscounts = () => {
     [context?.project?.key]
   );
 
-  const getAutoApplicableDiscounts = useCallback(
-    async (limit?: number, offset?: number): Promise<PagedQueryResponse> => {
-      try {
-        const result = await getCartDiscounts(
-          'requiresDiscountCode=false',
-          limit,
-          offset
-        );
-        return result;
-      } catch (err) {
-        return {
-          limit: 0,
-          offset: 0,
-          count: 0,
-          results: [],
-          total: 0,
-        };
-      }
-    },
-    [context?.project?.key]
-  );
-
   return {
-    getCartDiscounts,
-    getAutoApplicableDiscounts,
+    getProductDiscounts,
   };
 };

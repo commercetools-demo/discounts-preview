@@ -17,19 +17,24 @@ const config = {
     },
   },
   oAuthScopes: {
-    view: ['view_customers','view_cart_discounts', 'view_discount_codes', 'view_orders'],
+    view: ['view_products','view_customers','view_cart_discounts', 'view_discount_codes', 'view_orders'],
     manage: ['manage_cart_discounts', 'manage_discount_codes', 'manage_orders'],
   },
   icon: '${path:@tabler/icons/filled/discount.svg}',
   mainMenuLink: {
-    defaultLabel: 'Template starter',
+    defaultLabel: 'Discounts Preview Calculator',
     labelAllLocales: [],
     permissions: [PERMISSIONS.View],
   },
   submenuLinks: [
     {
-      uriPath: 'channels',
-      defaultLabel: 'Channels',
+      uriPath: '/',
+      defaultLabel: 'Discounts Preview Calculator',
+      permissions: [PERMISSIONS.View],
+    },
+    {
+      uriPath: 'overview',
+      defaultLabel: 'All Discounts',
       labelAllLocales: [],
       permissions: [PERMISSIONS.View],
     },

@@ -62,10 +62,6 @@ const DiscountPreview: React.FC = () => {
   return (
     <Container>
       <Spacings.Stack scale="m">
-        <Header>
-          <Title>{intl.formatMessage(messages.pageTitle)}</Title>
-          {/* Logo would be added here if available */}
-        </Header>
         <Text.Headline as="h1">
           {intl.formatMessage(messages.pageTitle)}
         </Text.Headline>
