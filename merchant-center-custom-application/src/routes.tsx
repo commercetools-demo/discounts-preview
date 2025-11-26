@@ -2,9 +2,7 @@ import type { ReactNode } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import DiscountPreview from './components/discount-preview';
 import {
-  AutoDiscountsProvider,
-  CurrentCartProvider,
-  CurrentUserProvider,
+  Providers,
 } from './contexts';
 
 type ApplicationRoutesProps = {
@@ -12,17 +10,13 @@ type ApplicationRoutesProps = {
 };
 const ApplicationRoutes = (_props: ApplicationRoutesProps) => {
   return (
-    <CurrentUserProvider>
-      <CurrentCartProvider>
-        <AutoDiscountsProvider>
-          <Switch>
-            <Route>
-              <DiscountPreview />
-            </Route>
-          </Switch>
-        </AutoDiscountsProvider>
-      </CurrentCartProvider>
-    </CurrentUserProvider>
+    <Providers>
+      <Switch>
+        <Route>
+          <DiscountPreview />
+        </Route>
+      </Switch>
+    </Providers>
   );
 };
 ApplicationRoutes.displayName = 'ApplicationRoutes';
