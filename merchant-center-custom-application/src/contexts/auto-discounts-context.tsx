@@ -32,7 +32,7 @@ interface AutoDiscountsProviderProps {
 export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
   children,
 }) => {
-  const { loadAutoDiscounts } = useCartDiscounts();
+  const { getAutoApplicableDiscounts } = useCartDiscounts();
   const [autoDiscounts, setAutoDiscounts] = useState<CartDiscount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
     setError(null);
 
     try {
-      const discounts = await loadAutoDiscounts(limit, (page - 1) * limit);
+      const discounts = await getAutoApplicableDiscounts(limit, (page - 1) * limit);
       setTotal(discounts.total ?? 0);
       setAutoDiscounts(discounts.results as CartDiscount[]);
     } catch (err) {
@@ -59,7 +59,7 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [loadAutoDiscounts, limit, page]);
+  }, [getAutoApplicableDiscounts, limit, page]);
 
   const onPageChange = (page: number) => {
     if (page >= 1) {
