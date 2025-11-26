@@ -20,7 +20,7 @@ const config = {
     view: ['view_customers','view_cart_discounts', 'view_discount_codes', 'view_orders'],
     manage: ['manage_cart_discounts', 'manage_discount_codes', 'manage_orders'],
   },
-  icon: '${path:@commercetools-frontend/assets/application-icons/rocket.svg}',
+  icon: '${path:@tabler/icons/filled/discount.svg}',
   mainMenuLink: {
     defaultLabel: 'Template starter',
     labelAllLocales: [],
