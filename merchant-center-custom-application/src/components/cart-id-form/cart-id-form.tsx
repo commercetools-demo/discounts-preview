@@ -1,18 +1,16 @@
-import React, { useState, useMemo } from 'react';
-import styled from '@emotion/styled';
-import { designTokens } from '@commercetools-uikit/design-system';
-import SecondaryButton from '@commercetools-uikit/secondary-button';
 import CheckboxInput from '@commercetools-uikit/checkbox-input';
+import { designTokens } from '@commercetools-uikit/design-system';
+import Link from '@commercetools-uikit/link';
 import SelectInput, { TCustomEvent } from '@commercetools-uikit/select-input';
-import { RefreshIcon } from '@commercetools-uikit/icons';
+import styled from '@emotion/styled';
+import React, { useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useCurrentCart, useCurrentCustomer } from '../../contexts';
-import Link from '@commercetools-uikit/link';
 
-import messages from './messages';
-import { useMoney } from '../../hooks/use-localization';
-import Spacings from '@commercetools-uikit/spacings';
 import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
+import Spacings from '@commercetools-uikit/spacings';
+import { useMoney } from '../../hooks/use-localization';
+import messages from './messages';
 
 const FormContainer = styled.div`
   background-color: ${designTokens.colorSurface};
@@ -50,8 +48,13 @@ const CartIdForm: React.FC = () => {
   const { convertMoneytoString } = useMoney();
   const context = useApplicationContext((context) => context);
   const { currentCustomer, setCurrentCustomer } = useCurrentCustomer();
-  const { currentCart, setCurrentCart, carts } = useCurrentCart();
-  const [applyBestPromo, setApplyBestPromo] = useState(false);
+  const {
+    currentCart,
+    setCurrentCart,
+    carts,
+    applyBestPromo,
+    setApplyBestPromo,
+  } = useCurrentCart();
 
   const { customers, isLoading } = useCurrentCustomer();
 
@@ -99,12 +102,6 @@ const CartIdForm: React.FC = () => {
     }
   };
 
-  const handleRefresh = () => {
-    if (currentCustomer) {
-      // onSubmit(selectedCustomer.id, applyBestPromo);
-    }
-  };
-
   return (
     <FormContainer>
       <FormContent>
@@ -145,13 +142,6 @@ const CartIdForm: React.FC = () => {
             )}
           </Spacings.Inline>
         </SearchInputContainer>
-
-        <SecondaryButton
-          iconLeft={<RefreshIcon />}
-          label={intl.formatMessage(messages.refresh)}
-          onClick={handleRefresh}
-          isDisabled={!currentCustomer}
-        />
 
         <CheckboxContainer>
           <CheckboxInput

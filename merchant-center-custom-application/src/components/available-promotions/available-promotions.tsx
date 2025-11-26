@@ -66,7 +66,7 @@ const collapsiblePanelStyles = css`
 `;
 const AvailablePromotions: React.FC = () => {
   const intl = useIntl();
-  const { currentCart } = useCurrentCart();
+  const { currentCart, applyBestPromo, applyDiscountCode } = useCurrentCart();
   const { promotions, isLoading, page, totalPages, onPageChange } =
     usePromotionContext();
   const { calculatePromotionValues } = usePromotions();
@@ -78,6 +78,14 @@ const AvailablePromotions: React.FC = () => {
     calculatePromotionValues(promotions, currentCart).then(
       (promotionsWithValues) => {
         setPromotionsWithValues(promotionsWithValues);
+        if (applyBestPromo) {
+          const bestPromo = promotionsWithValues.find(
+            (promo) => promo.isApplicable
+          );
+          if (bestPromo) {
+            applyDiscountCode(bestPromo.code);
+          }
+        }
       }
     );
   }, [promotions, currentCart]);

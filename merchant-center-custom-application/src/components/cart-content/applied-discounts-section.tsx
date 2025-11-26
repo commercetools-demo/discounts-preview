@@ -70,7 +70,7 @@ const AppliedDiscountsSection: React.FC<AppliedDiscountsSectionProps> = ({
         <Text.Headline as="h3" tone="primary">
           {intl.formatMessage(messages.customerAppliedDiscounts)}
         </Text.Headline>
-        <div style={{ marginTop: '16px' }}>
+        <Spacings.Stack scale="s">
           {cartData.discountCodes && cartData.discountCodes.length > 0 ? (
             cartData.discountCodes.map((discount) => (
               <Spacings.Inline
@@ -105,7 +105,7 @@ const AppliedDiscountsSection: React.FC<AppliedDiscountsSectionProps> = ({
               </Text.Detail>
             </EmptyState>
           )}
-        </div>
+        </Spacings.Stack>
       </Card>
       <Card>
         {discountData.totalAllDiscounts.centAmount > 0 ? (

@@ -16,6 +16,8 @@ interface CurrentCartContextValue {
   isLoading: boolean;
   error: string | null;
   updatingLineItems: Set<string>;
+  applyBestPromo: boolean;
+  setApplyBestPromo: (applyBestPromo: boolean) => void;
   setCurrentCart: (cart: Cart | null) => void;
   updateLineItemQuantity: (
     lineItemId: string,
@@ -55,6 +57,7 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
   const [currentCart, setCurrentCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [applyBestPromo, setApplyBestPromo] = useState(false);
 
   const [updatingLineItems, setUpdatingLineItems] = useState<Set<string>>(
     new Set()
@@ -182,6 +185,8 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
     isLoading,
     error,
     updatingLineItems,
+    applyBestPromo,
+    setApplyBestPromo,
     setCurrentCart: onSetCurrentCart,
     updateLineItemQuantity,
     applyDiscountCode,
