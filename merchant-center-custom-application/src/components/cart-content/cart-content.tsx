@@ -28,8 +28,8 @@ const collapsiblePanelStyles = css`
 `;
 
 const ContentArea = styled.div`
+  padding-bottom: 20px;
   width: 100%;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -52,11 +52,6 @@ const CartContent: React.FC = () => {
   const { convertLocalizedString } = useLocalizedString();
   const intl = useIntl();
   const { cartAnalysis, isAnalyzing } = useCartAnalysis(cartData);
-
-  const isLineItemUpdating = (lineItemId: string) => {
-    // return updatingLineItems && updatingLineItems.has(lineItemId);
-    return false;
-  };
 
   const onRemoveDiscount = (discountCodeId: string) => {
     // removeDiscountCode(discountCodeId);
