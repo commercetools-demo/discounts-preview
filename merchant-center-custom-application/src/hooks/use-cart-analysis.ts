@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Cart, CartDiscount } from '@commercetools/platform-sdk';
+import { useCallback, useEffect, useState } from 'react';
 import { evaluatePredicate, type EvaluationResult } from '../utils/discount';
-import { useAutoDiscounts } from '../contexts/auto-discounts-context';
+import { useCartDiscounts } from './use-cart-discounts';
 import { useLocalizedString } from './use-localization';
 
 export interface CategoryData {
@@ -37,20 +37,16 @@ export interface DiscountAnalysis {
   remainingCount?: number;
 }
 
-interface CacheState {
-  autoDiscounts: CartDiscount[] | null;
-  lastFetchTime: number | null;
-  expiryTime: number;
-}
-
 /**
  * Hook for analyzing cart data against auto-triggered discounts
  */
 export const useCartAnalysis = (cartData: Cart | null) => {
   const [cartAnalysis, setCartAnalysis] = useState<CartAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { autoDiscounts, error: autoDiscountsError } = useAutoDiscounts();
   const { convertLocalizedString } = useLocalizedString();
+  const { loadAutoDiscounts } = useCartDiscounts();
+  const [autoDiscounts, setAutoDiscounts] = useState<CartDiscount[]>([]);
+  const [autoDiscountsError, setAutoDiscountsError] = useState<string | null>(null);
 
   const extractLineItemCategories = (
     lineItem: Cart['lineItems'][number]
@@ -206,7 +202,7 @@ export const useCartAnalysis = (cartData: Cart | null) => {
    * Trigger analysis when cart data changes
    */
   const analyzeCartData = useCallback(async (): Promise<void> => {
-    if (!cartData) return;
+    if (!cartData || autoDiscounts.length === 0) return;
 
     setIsAnalyzing(true);
 
@@ -218,7 +214,7 @@ export const useCartAnalysis = (cartData: Cart | null) => {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [cartData, analyzeCart]);
+  }, [cartData, autoDiscounts, analyzeCart]);
 
   // Run analysis when cart changes
   useEffect(() => {
@@ -226,6 +222,14 @@ export const useCartAnalysis = (cartData: Cart | null) => {
       analyzeCartData();
     }
   }, [cartData, analyzeCartData]);
+  // Run analysis when cart changes
+  useEffect(() => {
+    loadAutoDiscounts(500, 0).then((discounts) => {
+      setAutoDiscounts(discounts.results as CartDiscount[]);
+    }) .catch((err) => {
+      setAutoDiscountsError('Failed to load auto-triggered discounts');
+    });
+  }, []);
 
   return {
     cartAnalysis,
