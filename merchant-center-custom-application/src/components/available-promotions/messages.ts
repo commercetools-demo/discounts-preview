@@ -99,4 +99,8 @@ export default defineMessages({
     id: 'AvailablePromotions.notApplicablePromotion',
     defaultMessage: 'Not applicable promotion',
   },
+  notApplicablePromotions: {
+    id: 'AvailablePromotions.notApplicablePromotions',
+    defaultMessage: 'Not applicable promotions',
+  },
 });

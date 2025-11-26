@@ -52,6 +52,14 @@ const StyledWrapper = styled.div`
   gap: 10px;
 `;
 
+const StyledNotApplicableWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 15px;
+`;
+
 const collapsiblePanelStyles = css`
   padding-left: 20px;
   padding-right: 20px;
@@ -119,13 +127,31 @@ const AvailablePromotions: React.FC = () => {
           </EmptyState>
         ) : (
           <StyledWrapper>
-            {promotionsWithValues.map((promo, index) => (
-              <PromotionCard
-                key={promo.id}
-                promo={promo}
-                isBestDeal={index === 0}
-              />
-            ))}
+            {promotionsWithValues
+              .filter((promo) => promo.isApplicable)
+              .map((promo, index) => (
+                <PromotionCard
+                  key={promo.id}
+                  promo={promo}
+                  isBestDeal={index === 0}
+                />
+              ))}
+            <CollapsiblePanel
+              header={intl.formatMessage(messages.notApplicablePromotions)}
+              isDefaultClosed
+            >
+              <StyledNotApplicableWrapper>
+                {promotionsWithValues
+                  .filter((promo) => !promo.isApplicable)
+                  .map((promo, index) => (
+                    <PromotionCard
+                      key={promo.id}
+                      promo={promo}
+                      isBestDeal={index === 0}
+                    />
+                  ))}
+              </StyledNotApplicableWrapper>
+            </CollapsiblePanel>
             <StyledDiv>
               <PageNavigator
                 page={page}
