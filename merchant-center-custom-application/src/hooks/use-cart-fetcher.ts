@@ -55,16 +55,16 @@ export const useCartFetcher = () => {
     async (
       cartId: string,
       lineItemId: string,
-      newQuantity: number
+      newQuantity: number,
+      expand?: string[]
     ): Promise<Cart> => {
       const cart = await getCart(cartId);
       const updatedCart = await dispatchCartAction(
         actions.post({
           mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
-          uri: buildUrlWithParams(
-            `/${context?.project?.key}/carts/${cartId}`,
-            {}
-          ),
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {
+            ...(expand ? { expand } : {}),
+          }),
           payload: {
             version: cart.version,
             actions: [
@@ -82,9 +82,71 @@ export const useCartFetcher = () => {
     [context?.project?.key]
   );
 
+  const applyDiscountCode = useCallback(
+    async (
+      cartId: string,
+      discountCode: string,
+      expand?: string[]
+    ): Promise<Cart> => {
+      const cart = await getCart(cartId);
+      const updatedCart = await dispatchCartAction(
+        actions.post({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {
+            ...(expand ? { expand } : {}),
+          }),
+          payload: {
+            version: cart.version,
+            actions: [
+              {
+                action: 'addDiscountCode',
+                code: discountCode,
+              },
+            ],
+          },
+        })
+      );
+      return updatedCart;
+    },
+    [context?.project?.key]
+  );
+  const removeDiscountCode = useCallback(
+    async (
+      cartId: string,
+      discountCodeId: string,
+      expand?: string[]
+    ): Promise<Cart> => {
+      const cart = await getCart(cartId);
+      const updatedCart = await dispatchCartAction(
+        actions.post({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/carts/${cartId}`, {
+            ...(expand ? { expand } : {}),
+          }),
+          payload: {
+            version: cart.version,
+            actions: [
+              {
+                action: 'removeDiscountCode',
+                discountCode: {
+                  typeId: 'discount-code',
+                  id: discountCodeId,
+                },
+              },
+            ],
+          },
+        })
+      );
+      return updatedCart;
+    },
+    [context?.project?.key]
+  );
+
   return {
     getCart,
     getCarts,
     updateLineItemQuantity,
+    applyDiscountCode,
+    removeDiscountCode,
   };
 };

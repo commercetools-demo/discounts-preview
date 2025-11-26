@@ -45,11 +45,11 @@ export default defineMessages({
   },
   cartTotal: {
     id: 'AvailablePromotions.cartTotal',
-    defaultMessage: 'Cart Total: {amount}',
+    defaultMessage: 'Cart Total:',
   },
   discountTotal: {
     id: 'AvailablePromotions.discountTotal',
-    defaultMessage: 'Discount Total: {amount}',
+    defaultMessage: 'Discount Total:',
   },
   applied: {
     id: 'AvailablePromotions.applied',
@@ -90,5 +90,13 @@ export default defineMessages({
   noProductLevelDiscounts: {
     id: 'AvailablePromotions.noProductLevelDiscounts',
     defaultMessage: 'No product level discounts',
+  },
+  promotionCode: {
+    id: 'AvailablePromotions.promotionCode',
+    defaultMessage: 'Promotion Code: {code}',
+  },
+  notApplicablePromotion: {
+    id: 'AvailablePromotions.notApplicablePromotion',
+    defaultMessage: 'Not applicable promotion',
   },
 });

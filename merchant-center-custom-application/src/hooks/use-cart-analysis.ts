@@ -44,9 +44,11 @@ export const useCartAnalysis = (cartData: Cart | null) => {
   const [cartAnalysis, setCartAnalysis] = useState<CartAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { convertLocalizedString } = useLocalizedString();
-  const { loadAutoDiscounts } = useCartDiscounts();
+  const { getAutoApplicableDiscounts } = useCartDiscounts();
   const [autoDiscounts, setAutoDiscounts] = useState<CartDiscount[]>([]);
-  const [autoDiscountsError, setAutoDiscountsError] = useState<string | null>(null);
+  const [autoDiscountsError, setAutoDiscountsError] = useState<string | null>(
+    null
+  );
 
   const extractLineItemCategories = (
     lineItem: Cart['lineItems'][number]
@@ -224,11 +226,13 @@ export const useCartAnalysis = (cartData: Cart | null) => {
   }, [cartData, analyzeCartData]);
   // Run analysis when cart changes
   useEffect(() => {
-    loadAutoDiscounts(500, 0).then((discounts) => {
-      setAutoDiscounts(discounts.results as CartDiscount[]);
-    }) .catch((err) => {
-      setAutoDiscountsError('Failed to load auto-triggered discounts');
-    });
+    getAutoApplicableDiscounts(500, 0)
+      .then((discounts) => {
+        setAutoDiscounts(discounts.results as CartDiscount[]);
+      })
+      .catch((err) => {
+        setAutoDiscountsError('Failed to load auto-triggered discounts');
+      });
   }, []);
 
   return {

@@ -9,24 +9,12 @@ import type { Cart, Money } from '@commercetools/platform-sdk';
 import messages from './messages';
 import Card from '@commercetools-uikit/card';
 import { useLocalizedString, useMoney } from '../../hooks/use-localization';
+import Spacings from '@commercetools-uikit/spacings';
+import { useCurrentCart } from '../../contexts/current-cart-context';
 
 const Divider = styled.div`
   border-top: 1px solid ${designTokens.colorNeutral90};
   margin: 16px 0;
-`;
-
-const DiscountItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  background-color: ${designTokens.colorSurface};
-  border-radius: 4px;
-  margin-bottom: 8px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 `;
 
 const EmptyState = styled.div`
@@ -61,17 +49,20 @@ interface AppliedDiscountsSectionProps {
     cartDiscountMap: Map<string, { name: string; value: Money }>;
     productDiscountMap: Map<string, { name: string; value: Money }>;
   };
-  onRemoveDiscount: (discountCodeId: string) => void;
 }
 
 const AppliedDiscountsSection: React.FC<AppliedDiscountsSectionProps> = ({
   cartData,
   discountData,
-  onRemoveDiscount,
 }) => {
   const intl = useIntl();
+  const { removeDiscountCode } = useCurrentCart();
   const { convertLocalizedString } = useLocalizedString();
   const { convertMoneytoString } = useMoney();
+
+  const onRemoveDiscount = async (discountCodeId: string) => {
+    await removeDiscountCode(discountCodeId);
+  };
 
   return (
     <>
@@ -82,21 +73,30 @@ const AppliedDiscountsSection: React.FC<AppliedDiscountsSectionProps> = ({
         <div style={{ marginTop: '16px' }}>
           {cartData.discountCodes && cartData.discountCodes.length > 0 ? (
             cartData.discountCodes.map((discount) => (
-              <DiscountItem key={discount.discountCode.id}>
-                <Text.Body fontWeight="bold">
-                  {intl.formatMessage(messages.discountCode, {
-                    name: convertLocalizedString(
-                      discount.discountCode.obj?.name
-                    ),
-                  })}
-                </Text.Body>
+              <Spacings.Inline
+                key={discount.discountCode.id}
+                scale="s"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Spacings.Inline scale="s" alignItems="center">
+                  <Text.Body fontWeight="bold">
+                    {intl.formatMessage(messages.discountCode, {
+                      name:
+                        convertLocalizedString(
+                          discount.discountCode.obj?.name
+                        ) || intl.formatMessage(messages.unnamedDiscount),
+                    })}
+                  </Text.Body>
+                  <Text.Detail>{discount.discountCode.obj?.code}</Text.Detail>
+                </Spacings.Inline>
                 <SecondaryButton
                   iconLeft={<BinLinearIcon />}
                   label={intl.formatMessage(messages.remove)}
                   onClick={() => onRemoveDiscount(discount.discountCode.id)}
                   tone="secondary"
                 />
-              </DiscountItem>
+              </Spacings.Inline>
             ))
           ) : (
             <EmptyState>

@@ -53,10 +53,6 @@ const CartContent: React.FC = () => {
   const intl = useIntl();
   const { cartAnalysis, isAnalyzing } = useCartAnalysis(cartData);
 
-  const onRemoveDiscount = (discountCodeId: string) => {
-    // removeDiscountCode(discountCodeId);
-  };
-
   // Calculate discount data
   const calculateDiscountData = (): {
     totalCartDiscounts: Money;
@@ -263,7 +259,6 @@ const CartContent: React.FC = () => {
         <AppliedDiscountsSection
           cartData={cartData}
           discountData={discountData}
-          onRemoveDiscount={onRemoveDiscount}
         />
 
         {/* Cart Totals */}

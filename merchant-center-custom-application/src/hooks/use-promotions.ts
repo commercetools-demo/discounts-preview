@@ -1,96 +1,202 @@
-import { useState, useEffect } from 'react';
-import type { Cart, DiscountCode } from '@commercetools/platform-sdk';
+import type {
+  Cart,
+  DiscountCode,
+  DiscountCodePagedQueryResponse,
+  Money,
+} from '@commercetools/platform-sdk';
+import { buildUrlWithParams } from '../utils/url';
+import { useCallback } from 'react';
+import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
+import { MC_API_PROXY_TARGETS } from '@commercetools-frontend/constants';
+import {
+  actions,
+  TSdkAction,
+  useAsyncDispatch,
+} from '@commercetools-frontend/sdk';
+import { useShadowCart } from './use-shadow-cart';
+import { useMoney, useLocalizedString } from './use-localization';
 
 export interface PromotionWithValue extends DiscountCode {
-  totalCart: number;
-  discountValue: number;
-  cartLevelDiscount: number;
-  itemLevelDiscounts: number;
+  totalCart: Money | null;
+  discountValue: Money | null;
+  cartLevelDiscount: Money | null;
+  itemLevelDiscounts: Money | null;
   includedDiscounts: DiscountBreakdown[];
   includedItemLevelDiscounts: ItemLevelDiscountBreakdown[];
+  isApplicable: boolean;
 }
 
 export interface DiscountBreakdown {
   name: string;
-  amount: number;
-  currency: string;
+  amount: Money;
 }
 
 export interface ItemLevelDiscountBreakdown {
   skuName: string;
   name: string;
-  amount: number;
-  currency: string;
+  amount: Money;
 }
 
-export const usePromotions = (
-  cartData: Cart | null,
-  applyBestPromoAutomatically: boolean
-) => {
-  const [promotions, setPromotions] = useState<PromotionWithValue[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currencyCode, setCurrencyCode] = useState('USD');
+export const usePromotions = () => {
+  const context = useApplicationContext((context) => context);
+  const dispatchPromotionsAction = useAsyncDispatch<
+    TSdkAction,
+    DiscountCodePagedQueryResponse
+  >();
 
-  const loadPromotions = async (): Promise<void> => {
-    // TODO: Implement promotions loading
-    console.log('Loading Discount Codes...');
-    setIsLoading(true);
+  const { createShadowCart, deleteShadowCart } = useShadowCart();
+  const { addMoney } = useMoney();
+  const { convertLocalizedString } = useLocalizedString();
 
-    try {
-      // Empty implementation - will be filled later
-      setPromotions([]);
-    } catch (error) {
-      console.error('Error loading promotions:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getPromotions = useCallback(
+    async (
+      limit?: number,
+      offset?: number
+    ): Promise<DiscountCodePagedQueryResponse> => {
+      const result = await dispatchPromotionsAction(
+        actions.get({
+          mcApiProxyTarget: MC_API_PROXY_TARGETS.COMMERCETOOLS_PLATFORM,
+          uri: buildUrlWithParams(`/${context?.project?.key}/discount-codes`, {
+            where: 'isActive=true',
+            expand: ['cartDiscounts[*]'],
+            ...(limit ? { limit: limit.toString() } : {}),
+            ...(offset ? { offset: offset.toString() } : {}),
+          }),
+        })
+      );
+      return result;
+    },
+    [context?.project?.key]
+  );
 
-  const calculatePromotionValues = async (
-    discountCodes: DiscountCode[],
-    cartData: Cart
-  ): Promise<PromotionWithValue[]> => {
-    // TODO: Implement promotion values calculation
-    console.log('Calculating promotion values...');
+  const calculatePromotionValues = useCallback(
+    async (
+      discountCodes: DiscountCode[],
+      cartData: Cart
+    ): Promise<PromotionWithValue[]> => {
+      console.log('Calculating promotion values...');
 
-    // Empty implementation - will be filled later
-    return [];
-  };
+      const promotionsWithValues = await Promise.all(
+        discountCodes.map(async (code) => {
+          console.log('Processing discount code:', code.code);
 
-  const createShadowCart = async (
-    cartData: Cart,
-    newDiscountCode: string
-  ): Promise<Cart> => {
-    // TODO: Implement shadow cart creation
-    console.log('Creating shadow cart with discount code:', newDiscountCode);
+          try {
+            const shadowCart = await createShadowCart(cartData, code.code);
 
-    // Empty implementation - will be filled later
-    throw new Error('Not implemented');
-  };
+            let cartLevelDiscount: Money | null = null;
+            let itemLevelDiscounts: Money | null = null;
+            const includedDiscounts: DiscountBreakdown[] = [];
+            const includedItemLevelDiscounts: ItemLevelDiscountBreakdown[] = [];
 
-  const deleteShadowCart = async (shadowCart: Cart): Promise<void> => {
-    // TODO: Implement shadow cart deletion
-    console.log('Deleting shadow cart:', shadowCart.id);
+            // Check for cart-level discount
+            if (shadowCart.discountOnTotalPrice?.discountedAmount) {
+              cartLevelDiscount =
+                shadowCart.discountOnTotalPrice.discountedAmount;
 
-    // Empty implementation - will be filled later
-  };
+              // Extract included discounts at cart level
+              if (shadowCart.discountOnTotalPrice.includedDiscounts) {
+                for (const discount of shadowCart.discountOnTotalPrice
+                  .includedDiscounts) {
+                  const discountRef = discount.discount as {
+                    obj?: { name?: Record<string, string> };
+                  };
+                  includedDiscounts.push({
+                    name:
+                      convertLocalizedString(discountRef.obj?.name) ||
+                      'Unnamed Discount',
+                    amount: discount.discountedAmount,
+                  });
+                }
+              }
+            }
 
-  useEffect(() => {
-    if (cartData) {
-      if (cartData.totalPrice?.currencyCode) {
-        setCurrencyCode(cartData.totalPrice.currencyCode);
-      }
-      loadPromotions();
-    }
-  }, [cartData]);
+            // Calculate line item discounts
+            for (const item of shadowCart.lineItems) {
+              if (
+                item.discountedPricePerQuantity &&
+                item.discountedPricePerQuantity.length > 0
+              ) {
+                for (const priceQuantity of item.discountedPricePerQuantity) {
+                  if (priceQuantity.discountedPrice?.includedDiscounts) {
+                    for (const discount of priceQuantity.discountedPrice
+                      .includedDiscounts) {
+                      const discountRef = discount.discount as {
+                        obj?: { name?: Record<string, string> };
+                      };
+                      includedItemLevelDiscounts.push({
+                        skuName:
+                          convertLocalizedString(item.name) || 'Unknown SKU',
+                        name:
+                          convertLocalizedString(discountRef.obj?.name) ||
+                          'Unnamed Discount',
+                        amount: discount.discountedAmount,
+                      });
+
+                      // Accumulate item level discounts
+                      itemLevelDiscounts =
+                        addMoney(
+                          itemLevelDiscounts ?? undefined,
+                          discount.discountedAmount
+                        ) ?? null;
+                    }
+                  }
+                }
+              }
+            }
+
+            // Calculate total discount value
+            const discountValue =
+              addMoney(
+                cartLevelDiscount ?? undefined,
+                itemLevelDiscounts ?? undefined
+              ) ?? null;
+
+            // Delete the shadow cart as it's no longer required
+            await deleteShadowCart(shadowCart);
+
+            return {
+              ...code,
+              totalCart: shadowCart.totalPrice,
+              discountValue,
+              cartLevelDiscount,
+              itemLevelDiscounts,
+              includedDiscounts,
+              includedItemLevelDiscounts,
+              isApplicable: true,
+            };
+          } catch (error) {
+            console.error(
+              `Error processing discount code ${code.code}:`,
+              error
+            );
+            // Return the code with null values on error
+            return {
+              ...code,
+              totalCart: null,
+              discountValue: null,
+              cartLevelDiscount: null,
+              itemLevelDiscounts: null,
+              includedDiscounts: [],
+              includedItemLevelDiscounts: [],
+              isApplicable: false,
+            };
+          }
+        })
+      );
+
+      return promotionsWithValues.sort((a, b) => {
+        if (a.totalCart === null) return 1;
+        if (b.totalCart === null) return -1;
+        if (a.isApplicable && !b.isApplicable) return -1;
+        if (!a.isApplicable && b.isApplicable) return 1;
+        return (a.totalCart.centAmount ?? 0) - (b.totalCart.centAmount ?? 0);
+      });
+    },
+    [createShadowCart, deleteShadowCart, addMoney, convertLocalizedString]
+  );
 
   return {
-    promotions,
-    isLoading,
-    currencyCode,
-    loadPromotions,
+    getPromotions,
     calculatePromotionValues,
-    createShadowCart,
-    deleteShadowCart,
   };
 };

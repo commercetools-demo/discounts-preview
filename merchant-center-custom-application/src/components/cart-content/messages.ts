@@ -159,7 +159,7 @@ export default defineMessages({
   },
   discountCode: {
     id: 'CartContent.discountCode',
-    defaultMessage: 'Discount Code: {name}',
+    defaultMessage: 'Discount Code ({name}):',
   },
   cartDiscountsSubtotal: {
     id: 'CartContent.cartDiscountsSubtotal',
@@ -168,5 +168,9 @@ export default defineMessages({
   totalAllDiscounts: {
     id: 'CartContent.totalAllDiscounts',
     defaultMessage: 'Total All Discounts:',
+  },
+  unnamedDiscount: {
+    id: 'CartContent.unnamedDiscount',
+    defaultMessage: 'Unnamed Discount',
   },
 });

@@ -2494,7 +2494,7 @@
     lodash "4.17.21"
     warning "4.0.3"
 
-"@commercetools-uikit/tooltip@20.3.0":
+"@commercetools-uikit/tooltip@20.3.0", "@commercetools-uikit/tooltip@^20.3.0":
   version "20.3.0"
   resolved "https://registry.yarnpkg.com/@commercetools-uikit/tooltip/-/tooltip-20.3.0.tgz#1ce09710ec84e1b84659cad9e80ec94a382a53ac"
   integrity sha512-JBK+zk00CBMIEUpQ5RatEyJCgYDogF40VT1raTvjGhJROK4ZlGj9QTL8aA7Tdar2DwrLMo3iEWiA9lDCl2Cnpg==

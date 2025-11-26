@@ -1,57 +1,29 @@
-import React, { useState } from 'react';
-import styled from '@emotion/styled';
+import CollapsiblePanel from '@commercetools-uikit/collapsible-panel';
 import { designTokens } from '@commercetools-uikit/design-system';
 import LoadingSpinner from '@commercetools-uikit/loading-spinner';
+import { PageNavigator } from '@commercetools-uikit/pagination';
 import Text from '@commercetools-uikit/text';
-import { AngleDownIcon, AngleUpIcon } from '@commercetools-uikit/icons';
+import { css } from '@emotion/react';
+import styled from '@emotion/styled';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import type { Cart } from '@commercetools/platform-sdk';
-import { usePromotions } from '../../hooks/use-promotions';
-import PromotionCard from './promotion-card';
+import { useCurrentCart, usePromotionContext } from '../../contexts';
+import { PromotionWithValue, usePromotions } from '../../hooks/use-promotions';
 import messages from './messages';
-
-const Container = styled.div`
-  background-color: ${designTokens.colorSurface};
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-`;
-
-const Header = styled.h2`
-  font-size: 18px;
-  font-weight: 600;
-  padding: 16px;
-  background-color: ${designTokens.colorPrimary};
-  color: ${designTokens.colorSurface};
-  border-bottom: 2px solid ${designTokens.colorPrimary25};
-  margin: 0;
-`;
-
-const InfoHeader = styled.button`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: ${designTokens.colorPrimary};
-  color: ${designTokens.colorSurface};
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: ${designTokens.colorPrimary40};
-  }
-`;
+import PromotionCard from './promotion-card';
+import Tooltip from '@commercetools-uikit/tooltip';
+import FlatButton from '@commercetools-uikit/flat-button';
 
 const InfoContent = styled.div`
+  width: 380px;
+  white-space: normal;
   padding: 12px 16px;
   background-color: ${designTokens.colorInfo95};
   border-bottom: 1px solid ${designTokens.colorNeutral90};
 `;
 
 const ContentArea = styled.div`
-  padding: 24px;
+  width: 100%;
 `;
 
 const LoadingContainer = styled.div`
@@ -65,57 +37,73 @@ const EmptyState = styled.div`
   color: ${designTokens.colorNeutral60};
 `;
 
-interface AvailablePromotionsProps {
-  cartData: Cart | null;
-  onApplyDiscount: (discountCode: string) => void;
-  applyBestPromoAutomatically: boolean;
-  appliedDiscountCodes: string[];
-}
+const StyledDiv = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  padding-bottom: 20px;
+`;
 
-const AvailablePromotions: React.FC<AvailablePromotionsProps> = ({
-  cartData,
-  onApplyDiscount,
-  applyBestPromoAutomatically,
-  appliedDiscountCodes,
-}) => {
+const StyledWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const collapsiblePanelStyles = css`
+  padding-left: 20px;
+  padding-right: 20px;
+`;
+const AvailablePromotions: React.FC = () => {
   const intl = useIntl();
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-  const { promotions, isLoading, currencyCode } = usePromotions(
-    cartData,
-    applyBestPromoAutomatically
-  );
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
+  const { currentCart } = useCurrentCart();
+  const { promotions, isLoading, page, totalPages, onPageChange } =
+    usePromotionContext();
+  const { calculatePromotionValues } = usePromotions();
+  const [promotionsWithValues, setPromotionsWithValues] = useState<
+    PromotionWithValue[]
+  >([]);
+  useEffect(() => {
+    if (!currentCart) return;
+    calculatePromotionValues(promotions, currentCart).then(
+      (promotionsWithValues) => {
+        setPromotionsWithValues(promotionsWithValues);
+      }
+    );
+  }, [promotions, currentCart]);
 
   return (
-    <Container>
-      <Header>{intl.formatMessage(messages.headerTitle)}</Header>
-
-      <InfoHeader onClick={() => setIsInfoExpanded(!isInfoExpanded)}>
-        <span>{intl.formatMessage(messages.infoTitle)}</span>
-        {isInfoExpanded ? <AngleUpIcon /> : <AngleDownIcon />}
-      </InfoHeader>
-
-      {isInfoExpanded && (
-        <InfoContent>
-          <div>
-            <Text.Detail>
-              {intl.formatMessage(messages.infoDescription1)}
-            </Text.Detail>
-            <div style={{ marginTop: '8px' }}>
-              <Text.Detail>
-                {intl.formatMessage(messages.infoDescription2)}
-              </Text.Detail>
-            </div>
-          </div>
-        </InfoContent>
-      )}
-
+    <CollapsiblePanel
+      header={intl.formatMessage(messages.headerTitle)}
+      // description={intl.formatMessage(messages.subHeader)}
+      tone="primary"
+      css={collapsiblePanelStyles}
+      headerControls={
+        <Tooltip
+          title={intl.formatMessage(messages.infoTitle)}
+          components={{
+            BodyComponent: () => (
+              <InfoContent>
+                <div>
+                  <Text.Detail>
+                    {intl.formatMessage(messages.infoDescription1)}
+                  </Text.Detail>
+                  <div style={{ marginTop: '8px' }}>
+                    <Text.Detail>
+                      {intl.formatMessage(messages.infoDescription2)}
+                    </Text.Detail>
+                  </div>
+                </div>
+              </InfoContent>
+            ),
+          }}
+        >
+          <FlatButton label={intl.formatMessage(messages.infoTitle)} />
+        </Tooltip>
+      }
+    >
       <ContentArea>
         {isLoading ? (
           <LoadingContainer>
@@ -123,27 +111,32 @@ const AvailablePromotions: React.FC<AvailablePromotionsProps> = ({
               {intl.formatMessage(messages.loadingDiscounts)}
             </LoadingSpinner>
           </LoadingContainer>
-        ) : promotions.length === 0 ? (
+        ) : promotionsWithValues.length === 0 ? (
           <EmptyState>
             <Text.Body>
               {intl.formatMessage(messages.noDiscountsAvailable)}
             </Text.Body>
           </EmptyState>
         ) : (
-          promotions.map((promo, index) => (
-            <PromotionCard
-              key={promo.id}
-              promo={promo}
-              index={index}
-              currencyCode={currencyCode}
-              isApplied={appliedDiscountCodes.includes(promo.code)}
-              onApplyDiscount={onApplyDiscount}
-              formatCurrency={formatCurrency}
-            />
-          ))
+          <StyledWrapper>
+            {promotionsWithValues.map((promo, index) => (
+              <PromotionCard
+                key={promo.id}
+                promo={promo}
+                isBestDeal={index === 0}
+              />
+            ))}
+            <StyledDiv>
+              <PageNavigator
+                page={page}
+                onPageChange={onPageChange}
+                totalPages={totalPages}
+              />
+            </StyledDiv>
+          </StyledWrapper>
         )}
       </ContentArea>
-    </Container>
+    </CollapsiblePanel>
   );
 };
 

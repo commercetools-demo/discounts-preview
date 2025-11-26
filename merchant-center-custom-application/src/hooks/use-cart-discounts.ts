@@ -5,9 +5,7 @@ import {
   TSdkAction,
   useAsyncDispatch,
 } from '@commercetools-frontend/sdk';
-import type {
-  PagedQueryResponse
-} from '@commercetools/platform-sdk';
+import type { PagedQueryResponse } from '@commercetools/platform-sdk';
 import { useCallback } from 'react';
 import { buildUrlWithParams } from '../utils/url';
 export const useCartDiscounts = () => {

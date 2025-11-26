@@ -56,23 +56,8 @@ const PromotionsContainer = styled.div`
 
 const DiscountPreview: React.FC = () => {
   const intl = useIntl();
-  const [applyBestPromo, setApplyBestPromo] = useState(false);
 
-  const {
-    currentCart: cartData,
-    error,
-    appliedDiscountCodes,
-    loadCartData,
-    applyDiscountCode,
-  } = useCurrentCart();
-
-  const handleLoadCart = useCallback(
-    async (customerId: string, applyBestPromoFlag: boolean) => {
-      setApplyBestPromo(applyBestPromoFlag);
-      await loadCartData(customerId, applyBestPromoFlag);
-    },
-    [loadCartData]
-  );
+  const { currentCart: cartData, error } = useCurrentCart();
 
   return (
     <Container>
@@ -94,12 +79,7 @@ const DiscountPreview: React.FC = () => {
             <CartContent />
           </div>
           <PromotionsContainer>
-            <AvailablePromotions
-              cartData={cartData}
-              onApplyDiscount={applyDiscountCode}
-              applyBestPromoAutomatically={applyBestPromo}
-              appliedDiscountCodes={appliedDiscountCodes}
-            />
+            <AvailablePromotions />
             <AutoTriggeredPromotions />
           </PromotionsContainer>
         </GridContainer>

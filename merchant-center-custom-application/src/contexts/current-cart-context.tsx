@@ -15,10 +15,8 @@ interface CurrentCartContextValue {
   currentCart: Cart | null;
   isLoading: boolean;
   error: string | null;
-  appliedDiscountCodes: string[];
   updatingLineItems: Set<string>;
   setCurrentCart: (cart: Cart | null) => void;
-  loadCartData: (customerId: string, applyBestPromo: boolean) => Promise<void>;
   updateLineItemQuantity: (
     lineItemId: string,
     newQuantity: number
@@ -35,6 +33,13 @@ interface CurrentCartProviderProps {
   children: ReactNode;
 }
 
+const CART_EXPAND = [
+  'discountCodes[*].discountCode',
+  'discountOnTotalPrice.includedDiscounts[*].discount',
+  'lineItems[*].discountedPricePerQuantity[*].discountedPrice.includedDiscounts[*].discount',
+  'lineItems[*].price.discounted.discount',
+];
+
 export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
   children,
 }) => {
@@ -42,45 +47,27 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
     getCarts,
     updateLineItemQuantity: updateLineItemQuantityAction,
     getCart,
+    applyDiscountCode: applyDiscountCodeAction,
+    removeDiscountCode: removeDiscountCodeAction,
   } = useCartFetcher();
   const { currentCustomer } = useCurrentCustomer();
   const [carts, setCarts] = useState<Cart[]>([]);
   const [currentCart, setCurrentCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [appliedDiscountCodes, setAppliedDiscountCodes] = useState<string[]>(
-    []
-  );
+
   const [updatingLineItems, setUpdatingLineItems] = useState<Set<string>>(
     new Set()
   );
 
   const onSetCurrentCart = useCallback(async (cart: Cart | null) => {
     if (cart) {
-      const cartWithExpand = await getCart(cart.id, [
-        'discountCodes[*].discountCode',
-        'discountOnTotalPrice.includedDiscounts[*].discount',
-        'lineItems[*].discountedPricePerQuantity[*].discountedPrice.includedDiscounts[*].discount',
-        'lineItems[*].price.discounted.discount',
-      ]);
+      const cartWithExpand = await getCart(cart.id, CART_EXPAND);
       setCurrentCart(cartWithExpand);
     } else {
       setCurrentCart(null);
     }
   }, []);
-
-  const loadCartData = useCallback(
-    async (customerId: string, applyBestPromo: boolean): Promise<void> => {
-      // TODO: Implement cart data loading
-      setIsLoading(true);
-      setError(null);
-
-      // Empty implementation - will be filled later
-
-      setIsLoading(false);
-    },
-    []
-  );
 
   const updateLineItemQuantity = useCallback(
     async (lineItemId: string, newQuantity: number): Promise<void> => {
@@ -96,7 +83,8 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
         const updatedCart = await updateLineItemQuantityAction(
           currentCart.id,
           lineItemId,
-          newQuantity
+          newQuantity,
+          CART_EXPAND
         );
         setCurrentCart(updatedCart);
       } catch (err) {
@@ -120,7 +108,11 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
         return;
       }
 
-      if (appliedDiscountCodes.includes(discountCode)) {
+      if (
+        currentCart.discountCodes?.some(
+          (code) => code.discountCode?.obj?.code === discountCode
+        )
+      ) {
         console.log('Discount code already applied:', discountCode);
         return;
       }
@@ -129,7 +121,12 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
       setError(null);
 
       try {
-        // Empty implementation - will be filled later
+        const updatedCart = await applyDiscountCodeAction(
+          currentCart.id,
+          discountCode,
+          CART_EXPAND
+        );
+        setCurrentCart(updatedCart);
       } catch (err) {
         console.error('Error applying discount code:', err);
         setError('Failed to apply discount code');
@@ -137,7 +134,7 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
         setIsLoading(false);
       }
     },
-    [currentCart, appliedDiscountCodes]
+    [currentCart]
   );
 
   const removeDiscountCode = useCallback(
@@ -151,7 +148,12 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
       setError(null);
 
       try {
-        // Empty implementation - will be filled later
+        const updatedCart = await removeDiscountCodeAction(
+          currentCart.id,
+          discountCodeId,
+          CART_EXPAND
+        );
+        setCurrentCart(updatedCart);
       } catch (err) {
         console.error('Error removing discount code:', err);
         setError('Failed to remove discount code');
@@ -179,10 +181,8 @@ export const CurrentCartProvider: React.FC<CurrentCartProviderProps> = ({
     currentCart,
     isLoading,
     error,
-    appliedDiscountCodes,
     updatingLineItems,
     setCurrentCart: onSetCurrentCart,
-    loadCartData,
     updateLineItemQuantity,
     applyDiscountCode,
     removeDiscountCode,

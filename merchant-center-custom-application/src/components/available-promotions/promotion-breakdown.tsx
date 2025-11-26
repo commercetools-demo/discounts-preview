@@ -5,14 +5,9 @@ import Text from '@commercetools-uikit/text';
 import { useIntl } from 'react-intl';
 import type { PromotionWithValue } from '../../hooks/use-promotions';
 import messages from './messages';
-
-const Card = styled.div`
-  background-color: ${designTokens.colorSurface};
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  padding: 16px;
-  margin-top: 16px;
-`;
+import { useMoney } from '../../hooks/use-localization';
+import { Money } from '@commercetools/platform-sdk';
+import Card from '@commercetools-uikit/card';
 
 const Section = styled.div`
   margin-top: 12px;
@@ -112,38 +107,40 @@ const TableFooter = styled.tfoot`
 interface PromotionBreakdownProps {
   promo: PromotionWithValue;
   currencyCode: string;
-  formatCurrency: (amount: number, currency: string) => string;
 }
 
 const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
   promo,
   currencyCode,
-  formatCurrency,
 }) => {
   const intl = useIntl();
-
+  const { convertMoneytoString, addMoney } = useMoney();
+  const initialValue: Money = { centAmount: 0, currencyCode };
+  const totlaDiscounts = promo.includedDiscounts.reduce(
+    (acc: Money, curr): Money => addMoney(acc, curr.amount) as Money,
+    initialValue
+  );
+  const totalItemLevelDiscounts = promo.includedItemLevelDiscounts.reduce(
+    (acc: Money, curr): Money => addMoney(acc, curr.amount) as Money,
+    initialValue
+  );
   return (
     <Card>
       {/* Cart Level Discounts */}
       {promo.includedDiscounts && promo.includedDiscounts.length > 0 && (
         <Section>
-          <SectionTitle>
+          <Text.Subheadline>
             {intl.formatMessage(messages.discountsOnCartTotal)}
-          </SectionTitle>
+          </Text.Subheadline>
           {promo.includedDiscounts.map((discount, idx) => (
             <DiscountItem key={idx}>
               {discount.name}:{' '}
-              <span>{formatCurrency(discount.amount, currencyCode)}</span>
+              <span>{convertMoneytoString(discount.amount)}</span>
             </DiscountItem>
           ))}
           <Total>
             <span>{intl.formatMessage(messages.cartDiscountsTotal)}</span>
-            <span>
-              {formatCurrency(
-                promo.includedDiscounts.reduce((sum, d) => sum + d.amount, 0),
-                currencyCode
-              )}
-            </span>
+            <span>{convertMoneytoString(totlaDiscounts)}</span>
           </Total>
         </Section>
       )}
@@ -174,7 +171,7 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
                     <TableCell>{discount.skuName}</TableCell>
                     <TableCell>{discount.name}</TableCell>
                     <TableCell>
-                      {formatCurrency(discount.amount, currencyCode)}
+                      {convertMoneytoString(discount.amount)}
                     </TableCell>
                   </tr>
                 ))}
@@ -184,14 +181,9 @@ const PromotionBreakdown: React.FC<PromotionBreakdownProps> = ({
                   <td colSpan={2}>
                     {intl.formatMessage(messages.productDiscountsTotal)}
                   </td>
-                  <td>
-                    {formatCurrency(
-                      promo.includedItemLevelDiscounts.reduce(
-                        (sum, d) => sum + d.amount,
-                        0
-                      ),
-                      currencyCode
-                    )}
+                  <td style={{ textAlign: 'right' }}>
+                    {' '}
+                    {convertMoneytoString(totalItemLevelDiscounts)}
                   </td>
                 </tr>
               </TableFooter>

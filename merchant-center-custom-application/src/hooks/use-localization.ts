@@ -6,7 +6,9 @@ export const useMoney = () => {
   const context = useApplicationContext((context) => context);
   const addMoney = useCallback(
     (money1?: Money, money2?: Money) => {
-      if (!money1 || !money2) return null;
+      if (!money1 && !money2) return null;
+      if (!money1) return money2;
+      if (!money2) return money1;
       return {
         centAmount: money1.centAmount + money2.centAmount,
         currencyCode: money1.currencyCode,
@@ -17,7 +19,9 @@ export const useMoney = () => {
 
   const subtractMoney = useCallback(
     (money1?: Money, money2?: Money) => {
-      if (!money1 || !money2) return null;
+      if (!money1 && !money2) return null;
+      if (!money1) return money2;
+      if (!money2) return money1;
       return {
         centAmount: money1.centAmount - money2.centAmount,
         currencyCode: money1.currencyCode,
@@ -41,7 +45,7 @@ export const useMoney = () => {
     (money?: Money | null, divisor?: number) => {
       if (!money || !divisor) return null;
       return {
-        centAmount: money.centAmount / (divisor || 0),
+        centAmount: money.centAmount / divisor,
         currencyCode: money.currencyCode,
       };
     },

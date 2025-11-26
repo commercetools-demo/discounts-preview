@@ -33,7 +33,7 @@ const TotalRow = styled.div`
 `;
 
 interface CartTotalsSectionProps {
-  subtotalWithoutDiscounts: Money | null;
+  subtotalWithoutDiscounts?: Money | null;
   totalAllDiscounts: Money | null;
   cartTotal: Money | null;
 }

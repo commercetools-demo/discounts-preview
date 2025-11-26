@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import DiscountPreview from './components/discount-preview';
-import {
-  Providers,
-} from './contexts';
+import { Providers } from './contexts';
 
 type ApplicationRoutesProps = {
   children?: ReactNode;

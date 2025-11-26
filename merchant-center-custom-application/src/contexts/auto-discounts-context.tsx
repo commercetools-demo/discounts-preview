@@ -49,7 +49,10 @@ export const AutoDiscountsProvider: React.FC<AutoDiscountsProviderProps> = ({
     setError(null);
 
     try {
-      const discounts = await getAutoApplicableDiscounts(limit, (page - 1) * limit);
+      const discounts = await getAutoApplicableDiscounts(
+        limit,
+        (page - 1) * limit
+      );
       setTotal(discounts.total ?? 0);
       setAutoDiscounts(discounts.results as CartDiscount[]);
     } catch (err) {
