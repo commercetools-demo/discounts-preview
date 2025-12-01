@@ -1,29 +1,4 @@
 deployAs:
-  - name: service
-    applicationType: service
-    endpoint: /service
-    scripts:
-      postDeploy: npm install && npm run build && npm run connector:post-deploy
-      preUndeploy: npm install && npm run build && npm run connector:pre-undeploy
-    configuration:
-      standardConfiguration:
-        - key: CTP_CLIENT_ID
-          description: commercetools Composable Commerce client ID
-          required: true
-        - key: CTP_PROJECT_KEY
-          description: commercetools Composable Commerce project key
-          required: true
-        - key: CTP_REGION
-          description: commercetools Composable Commerce API region
-          required: true
-          default: "us-central1.gcp"
-        - key: CTP_SCOPE
-          description: commercetools Composable Commerce client scope
-          required: true 
-      securedConfiguration:
-        - key: CTP_CLIENT_SECRET
-          description: commercetools Composable Commerce client secret
-          required: true
   - name: merchant-center-custom-application
     applicationType: merchant-center-custom-application
     configuration:
